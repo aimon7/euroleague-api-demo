@@ -10,6 +10,16 @@ const ROUTES: Array<{ path: string; name: string; ready: (page: Page) => Promise
     name: "landing",
     ready: (page) => page.locator('a[href*="/team/"]').first().waitFor({ timeout: 15_000 }),
   },
+  {
+    path: "/team/OLY",
+    name: "team",
+    ready: (page) => page.getByRole("heading", { name: /Olympiacos/i }).waitFor({ timeout: 15_000 }),
+  },
+  {
+    path: "/player/014316",
+    name: "player",
+    ready: (page) => page.getByRole("heading", { name: /Cory/i }).waitFor({ timeout: 15_000 }),
+  },
 ]
 
 // Console noise that is not an app defect.

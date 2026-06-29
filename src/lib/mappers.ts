@@ -226,3 +226,22 @@ export function toTeamStatRow(row: TeamStat): TeamStatRow {
     pir: num(row.pir),
   }
 }
+
+/** Find a team's stats row by club code in an accumulated stats payload. */
+export function findTeamStatRow(
+  rows: TeamStat[] | undefined,
+  clubCode: string,
+): TeamStat | undefined {
+  return rows?.find((row) => parseClubRef(row.team)?.code === clubCode)
+}
+
+/** Find a player's stats row by person code in an accumulated stats payload. */
+export function findPlayerStatRow(
+  rows: PlayerStat[] | undefined,
+  personCode: string,
+): PlayerStat | undefined {
+  return rows?.find((row) => {
+    const player = parseEntity<{ code?: string | null }>(row.player)
+    return player?.code === personCode
+  })
+}
