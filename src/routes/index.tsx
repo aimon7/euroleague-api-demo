@@ -1,17 +1,37 @@
-import { createFileRoute } from "@tanstack/react-router"
+import { createFileRoute, useNavigate } from "@tanstack/react-router"
 
 import { useAppSearch } from "@/lib/search"
+import type { LandingSearch } from "@/lib/landing-search"
+import {
+  buildLandingSearch,
+  landingSearchSchema,
+  landingTab,
+} from "@/lib/landing-search"
 import { COMPETITION_LABELS } from "@/lib/euroleague"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ClubsGrid } from "@/components/landing/clubs-grid"
 import { StandingsTable } from "@/components/landing/standings-table"
 
 export const Route = createFileRoute("/")({
+  validateSearch: landingSearchSchema,
   component: Landing,
 })
 
 function Landing() {
+  const search = Route.useSearch()
   const { competition, season } = useAppSearch()
+  const navigate = useNavigate({ from: "/" })
+
+  const setTab = (value: string) => {
+    void navigate({
+      search: (prev: LandingSearch) =>
+        buildLandingSearch({
+          competition: prev.competition,
+          season: prev.season,
+          tab: value === "standings" ? "standings" : undefined,
+        }),
+    })
+  }
 
   return (
     <div className="space-y-6">
@@ -27,7 +47,7 @@ function Landing() {
         </p>
       </section>
 
-      <Tabs defaultValue="clubs" className="space-y-4">
+      <Tabs value={landingTab(search)} onValueChange={setTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="clubs">Clubs</TabsTrigger>
           <TabsTrigger value="standings">Standings</TabsTrigger>

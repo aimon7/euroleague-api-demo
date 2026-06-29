@@ -1,12 +1,19 @@
 import type { ReactNode } from "react"
 import { Link } from "@tanstack/react-router"
 
-import { useAppSearch } from "@/lib/search"
+import { buildLandingSearch } from "@/lib/landing-search"
+import { useAppSearch, useLandingTabFromLocation } from "@/lib/search"
 import { CompetitionSeasonControls } from "./competition-season-controls"
 import { ThemeToggle } from "./theme-toggle"
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const search = useAppSearch()
+  const { competition, season } = useAppSearch()
+  const landingTab = useLandingTabFromLocation()
+  const homeSearch = buildLandingSearch({
+    competition,
+    season,
+    tab: landingTab,
+  })
 
   return (
     <div className="flex min-h-svh flex-col bg-background text-foreground">
@@ -14,7 +21,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="container mx-auto flex h-14 items-center justify-between gap-4 px-4">
           <Link
             to="/"
-            search={search}
+            search={homeSearch}
             className="font-serif text-lg font-semibold tracking-tight"
           >
             EuroLeague API Demo

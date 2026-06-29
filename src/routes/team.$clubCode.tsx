@@ -1,7 +1,14 @@
-import { Link, createFileRoute } from "@tanstack/react-router"
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router"
 
 import { useClub } from "@/lib/hooks"
 import { useAppSearch } from "@/lib/search"
+import { buildLandingSearch } from "@/lib/landing-search"
+import type { TeamSearch } from "@/lib/team-search"
+import {
+  buildTeamSearch,
+  teamPanel,
+  teamSearchSchema,
+} from "@/lib/team-search"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,14 +23,28 @@ import { RosterPanel } from "@/components/team/roster-panel"
 import { TeamStatsPanel } from "@/components/team/team-stats-panel"
 
 export const Route = createFileRoute("/team/$clubCode")({
+  validateSearch: teamSearchSchema,
   component: TeamRoute,
 })
 
 function TeamRoute() {
   const { clubCode } = Route.useParams()
+  const search = Route.useSearch()
   const { competition, season } = useAppSearch()
+  const navigate = useNavigate({ from: "/team/$clubCode" })
   const club = useClub(competition, season, clubCode)
   const clubName = club.data?.name ?? clubCode
+
+  const setPanel = (value: string) => {
+    void navigate({
+      search: (prev: TeamSearch) =>
+        buildTeamSearch({
+          competition: prev.competition,
+          season: prev.season,
+          panel: value === "stats" ? "stats" : undefined,
+        }),
+    })
+  }
 
   return (
     <div className="space-y-6">
@@ -32,7 +53,7 @@ function TeamRoute() {
           <BreadcrumbItem>
             <BreadcrumbLink
               render={
-                <Link to="/" search={{ competition, season }}>
+                <Link to="/" search={buildLandingSearch({ competition, season })}>
                   Home
                 </Link>
               }
@@ -47,7 +68,7 @@ function TeamRoute() {
 
       <TeamHeader club={club} />
 
-      <Tabs defaultValue="roster" className="space-y-4">
+      <Tabs value={teamPanel(search)} onValueChange={setPanel} className="space-y-4">
         <TabsList>
           <TabsTrigger value="roster">Roster</TabsTrigger>
           <TabsTrigger value="stats">Stats</TabsTrigger>
