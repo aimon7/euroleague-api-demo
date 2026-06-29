@@ -10,6 +10,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools"
 import type { RouterContext } from "../router"
 import { validateAppSearch } from "@/lib/search"
 import { AppShell } from "@/components/app/app-shell"
+import { ThemeProvider } from "@/components/theme-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
 import appCss from "../styles.css?url"
@@ -56,13 +57,15 @@ function RootLayout() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body>
-        <TooltipProvider>{children}</TooltipProvider>
-        <Toaster />
+        <ThemeProvider defaultTheme="dark" storageKey="theme">
+          <TooltipProvider>{children}</TooltipProvider>
+          <Toaster />
+        </ThemeProvider>
         <TanStackDevtools
           config={{
             position: "bottom-right",
