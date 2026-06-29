@@ -13,3 +13,8 @@ todos.json
 
 # typescript
 *.tsbuildinfo
+
+# playwright
+/test-results
+/playwright-report
+/e2e/screenshots
