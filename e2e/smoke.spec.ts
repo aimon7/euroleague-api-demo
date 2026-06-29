@@ -5,7 +5,11 @@ import { mkdirSync } from "node:fs"
 // Routes verified on every run. As routes ship, add them here. Detail routes use a
 // real code so live data renders (OLY = Olympiacos; 007143 = a real person code).
 const ROUTES: Array<{ path: string; name: string; ready: (page: Page) => Promise<unknown> }> = [
-  { path: "/", name: "landing", ready: (page) => page.locator("body").waitFor() },
+  {
+    path: "/",
+    name: "landing",
+    ready: (page) => page.locator('a[href*="/team/"]').first().waitFor({ timeout: 15_000 }),
+  },
 ]
 
 // Console noise that is not an app defect.

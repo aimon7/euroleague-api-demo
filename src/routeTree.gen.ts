@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TeamClubCodeRouteImport } from './routes/team.$clubCode'
+import { Route as PlayerPersonCodeRouteImport } from './routes/player.$personCode'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeamClubCodeRoute = TeamClubCodeRouteImport.update({
+  id: '/team/$clubCode',
+  path: '/team/$clubCode',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayerPersonCodeRoute = PlayerPersonCodeRouteImport.update({
+  id: '/player/$personCode',
+  path: '/player/$personCode',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/player/$personCode': typeof PlayerPersonCodeRoute
+  '/team/$clubCode': typeof TeamClubCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/player/$personCode': typeof PlayerPersonCodeRoute
+  '/team/$clubCode': typeof TeamClubCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/player/$personCode': typeof PlayerPersonCodeRoute
+  '/team/$clubCode': typeof TeamClubCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/player/$personCode' | '/team/$clubCode'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/player/$personCode' | '/team/$clubCode'
+  id: '__root__' | '/' | '/player/$personCode' | '/team/$clubCode'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PlayerPersonCodeRoute: typeof PlayerPersonCodeRoute
+  TeamClubCodeRoute: typeof TeamClubCodeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/team/$clubCode': {
+      id: '/team/$clubCode'
+      path: '/team/$clubCode'
+      fullPath: '/team/$clubCode'
+      preLoaderRoute: typeof TeamClubCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/player/$personCode': {
+      id: '/player/$personCode'
+      path: '/player/$personCode'
+      fullPath: '/player/$personCode'
+      preLoaderRoute: typeof PlayerPersonCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PlayerPersonCodeRoute: PlayerPersonCodeRoute,
+  TeamClubCodeRoute: TeamClubCodeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

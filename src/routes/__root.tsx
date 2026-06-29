@@ -1,13 +1,22 @@
-import { HeadContent, Scripts, createRootRouteWithContext } from "@tanstack/react-router"
+import {
+  HeadContent,
+  Outlet,
+  Scripts,
+  createRootRouteWithContext,
+} from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 
 import type { RouterContext } from "../router"
+import { validateAppSearch } from "@/lib/search"
+import { AppShell } from "@/components/app/app-shell"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
 import appCss from "../styles.css?url"
 
 export const Route = createRootRouteWithContext<RouterContext>()({
+  validateSearch: validateAppSearch,
+  component: RootLayout,
   head: () => ({
     meta: [
       {
@@ -36,6 +45,14 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   ),
   shellComponent: RootDocument,
 })
+
+function RootLayout() {
+  return (
+    <AppShell>
+      <Outlet />
+    </AppShell>
+  )
+}
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
