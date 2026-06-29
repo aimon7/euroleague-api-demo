@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "build": "vite build",
+    "postbuild": "node scripts/pages-postbuild.mjs",
     "preview": "vite preview",
+    "serve:dist": "vite preview --outDir dist/client",
     "test": "vitest run",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
