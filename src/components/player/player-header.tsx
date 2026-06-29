@@ -1,51 +1,114 @@
-import type { PersonProfile } from "euroleague-api"
+import type { Competition } from "euroleague-api"
+import {
+  BarbellIcon,
+  CakeIcon,
+  MapPinIcon,
+  RulerIcon,
+  TShirtIcon,
+} from "@phosphor-icons/react"
 
+import { usePersonProfile } from "@/lib/hooks"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { QueryError } from "@/components/app/query-error"
+import {
+  ageFromBirthDate,
+  formatBirthDate,
+  formatHeight,
+  formatWeight,
+  personDisplayName,
+} from "./format"
 
 interface Props {
-  profile: PersonProfile | undefined
-  isPending: boolean
-  isError: boolean
-  error: unknown
-  onRetry: () => void
+  competition: Competition
+  personCode: string
 }
 
-function formatHeight(cm: number | null | undefined): string | null {
-  if (!cm) return null
-  const totalIn = Math.round(cm / 2.54)
-  const ft = Math.floor(totalIn / 12)
-  const inches = totalIn % 12
-  return `${cm} cm (${ft}'${inches}")`
+interface HeaderBadge {
+  key: string
+  icon: typeof MapPinIcon
+  label: string
 }
 
-export function PlayerHeader({ profile, isPending, isError, error, onRetry }: Props) {
-  if (isPending) return <Skeleton className="h-24 w-full rounded-xl" />
-  if (isError) return <QueryError error={error} onRetry={onRetry} />
-  if (!profile) return null
+function initials(name: string): string {
+  const parts = name.split(/[\s,]+/).filter(Boolean)
+  if (parts.length === 0) return "?"
+  const first = parts[0].charAt(0)
+  const last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : ""
+  return (first + last).toUpperCase()
+}
 
-  const height = formatHeight(profile.height)
-  const birth = profile.birthDate ? profile.birthDate.slice(0, 10) : null
-  const country = profile.country?.name ?? profile.birthCountry?.name
+export function PlayerHeader({ competition, personCode }: Props) {
+  const { data, isPending, isError, error, refetch } = usePersonProfile(
+    competition,
+    personCode,
+  )
 
-  const meta = [country, birth, height, profile.weight ? `${profile.weight} kg` : null]
-    .filter(Boolean)
-    .join(" · ")
+  if (isPending) {
+    return (
+      <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-end">
+        <Skeleton className="size-20 rounded-full sm:size-24" />
+        <div className="flex w-full flex-col gap-2">
+          <Skeleton className="h-8 w-64 max-w-full" />
+          <Skeleton className="h-5 w-80 max-w-full" />
+        </div>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return <QueryError error={error} onRetry={() => void refetch()} />
+  }
+
+  const displayName = personDisplayName(data)
+  const country = data.country?.name ?? data.birthCountry?.name ?? null
+  const age = ageFromBirthDate(data.birthDate)
+  const height = formatHeight(data.height)
+  const weight = formatWeight(data.weight)
+  const birthDate = formatBirthDate(data.birthDate)
+
+  const badges: HeaderBadge[] = []
+  if (data.jerseyName && data.jerseyName.length > 0) {
+    badges.push({ key: "jersey", icon: TShirtIcon, label: data.jerseyName })
+  }
+  if (country != null) {
+    badges.push({ key: "country", icon: MapPinIcon, label: country })
+  }
+  if (age != null) {
+    const born = birthDate != null ? ` · born ${birthDate}` : ""
+    badges.push({ key: "age", icon: CakeIcon, label: `${age} yrs${born}` })
+  }
+  if (height != null) {
+    badges.push({ key: "height", icon: RulerIcon, label: height })
+  }
+  if (weight != null) {
+    badges.push({ key: "weight", icon: BarbellIcon, label: weight })
+  }
 
   return (
-    <div className="flex items-center gap-4">
-      <Avatar className="size-16">
-        <AvatarImage src={profile.images?.headshot ?? undefined} alt="" />
-        <AvatarFallback className="text-lg">
-          {profile.passportName?.slice(0, 2) ?? profile.code.slice(-2)}
+    <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-end sm:text-left">
+      <Avatar className="size-20 rounded-full ring-1 ring-foreground/10 sm:size-24">
+        <AvatarImage src={data.images?.headshot ?? undefined} alt={displayName} />
+        <AvatarFallback className="text-xl font-medium">
+          {initials(displayName)}
         </AvatarFallback>
       </Avatar>
-      <div className="min-w-0 space-y-1">
-        <h1 className="font-serif text-2xl font-semibold tracking-tight sm:text-3xl">
-          {profile.passportName ?? profile.name}
+
+      <div className="flex flex-col gap-2">
+        <h1 className="font-serif text-3xl leading-none font-semibold tracking-tight sm:text-4xl">
+          {displayName}
         </h1>
-        {meta ? <p className="text-sm text-muted-foreground">{meta}</p> : null}
+        {badges.length > 0 ? (
+          <div className="flex flex-wrap justify-center gap-1.5 sm:justify-start">
+            {badges.map((badge) => (
+              <Badge key={badge.key} variant="secondary" className="gap-1">
+                <badge.icon />
+                {badge.label}
+              </Badge>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   )

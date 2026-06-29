@@ -1,11 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
+import type { ReactNode } from "react"
+import { Link, createFileRoute } from "@tanstack/react-router"
 
-import { useAppSearch } from "@/lib/search"
-import { usePersonProfile, usePersonSeasonStats, useClub } from "@/lib/hooks"
-import { PlayerHeader } from "@/components/player/player-header"
-import { PlayerSeasonStats } from "@/components/player/player-season-stats"
-import { PlayerAdvancedStats } from "@/components/player/player-advanced-stats"
-import { PlayerGameChart } from "@/components/player/player-game-chart"
+import { buildLandingSearch } from "@/lib/landing-search"
+import { appSearchSchema, useAppSearch } from "@/lib/search"
+import { usePersonProfile } from "@/lib/hooks"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,81 +12,93 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { PlayerHeader } from "@/components/player/player-header"
+import { SeasonSummary } from "@/components/player/season-summary"
+import { AdvancedStats } from "@/components/player/advanced-stats"
+import { GameTrend } from "@/components/player/game-trend"
+import { personDisplayName } from "@/components/player/format"
 
 export const Route = createFileRoute("/player/$personCode")({
+  validateSearch: appSearchSchema,
   component: PlayerRoute,
 })
 
+function Section({
+  title,
+  description,
+  children,
+}: {
+  title: string
+  description: string
+  children: ReactNode
+}) {
+  return (
+    <section className="space-y-3">
+      <div className="space-y-1">
+        <h2 className="font-heading text-lg font-semibold tracking-tight">{title}</h2>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </div>
+      {children}
+    </section>
+  )
+}
+
 function PlayerRoute() {
   const { personCode } = Route.useParams()
-  const search = useAppSearch()
-  const { competition, season } = search
-
+  const { competition, season } = useAppSearch()
   const profile = usePersonProfile(competition, personCode)
-  const seasonStats = usePersonSeasonStats(competition, personCode, season)
-
-  const clubFromGames = seasonStats.data?.games[0]?.playerClubCode ?? null
-  const club = useClub(competition, season, clubFromGames ?? "")
-
-  const playerName = profile.data?.passportName ?? profile.data?.name ?? personCode
-  const teamName = club.data?.name
+  const name = profile.data ? personDisplayName(profile.data) : "Player"
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink render={<Link to="/" search={search} />}>Clubs</BreadcrumbLink>
+            <BreadcrumbLink
+              render={
+                <Link to="/" search={buildLandingSearch({ competition, season })} />
+              }
+            >
+              Home
+            </BreadcrumbLink>
           </BreadcrumbItem>
-          {clubFromGames ? (
-            <>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbLink
-                  render={
-                    <Link
-                      to="/team/$clubCode"
-                      params={{ clubCode: clubFromGames }}
-                      search={search}
-                    />
-                  }
-                >
-                  {teamName ?? clubFromGames}
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-            </>
-          ) : null}
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>{playerName}</BreadcrumbPage>
+            <BreadcrumbPage>{name}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
-      <PlayerHeader
-        profile={profile.data}
-        isPending={profile.isPending}
-        isError={profile.isError}
-        error={profile.error}
-        onRetry={() => void profile.refetch()}
-      />
+      <PlayerHeader competition={competition} personCode={personCode} />
 
-      <PlayerSeasonStats
-        stats={seasonStats.data}
-        isPending={seasonStats.isPending}
-        isError={seasonStats.isError}
-        error={seasonStats.error}
-        onRetry={() => void seasonStats.refetch()}
-      />
+      <Section
+        title="Season averages"
+        description="Per-game production and shooting splits from people.getSeasonStats."
+      >
+        <SeasonSummary
+          competition={competition}
+          personCode={personCode}
+          season={season}
+        />
+      </Section>
 
-      <PlayerGameChart stats={seasonStats.data} isPending={seasonStats.isPending} />
+      <Section
+        title="Advanced metrics"
+        description="Derived live in your browser from box-score totals — these aren't returned by the API."
+      >
+        <AdvancedStats
+          competition={competition}
+          personCode={personCode}
+          season={season}
+        />
+      </Section>
 
-      <PlayerAdvancedStats
-        competition={competition}
-        season={season}
-        personCode={personCode}
-        clubCode={clubFromGames}
-      />
+      <Section
+        title="Per-game trend"
+        description="Points and PIR (valuation) across each game of the season, in round order."
+      >
+        <GameTrend competition={competition} personCode={personCode} season={season} />
+      </Section>
     </div>
   )
 }
