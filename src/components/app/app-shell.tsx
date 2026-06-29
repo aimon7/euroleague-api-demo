@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router"
 
 import { useAppSearch } from "@/lib/search"
 import { CompetitionSeasonControls } from "./competition-season-controls"
+import { ThemeToggle } from "./theme-toggle"
 
 export function AppShell({ children }: { children: ReactNode }) {
   const search = useAppSearch()
@@ -18,7 +19,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           >
             EuroLeague API Demo
           </Link>
-          <CompetitionSeasonControls />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <CompetitionSeasonControls />
+          </div>
         </div>
       </header>
 
