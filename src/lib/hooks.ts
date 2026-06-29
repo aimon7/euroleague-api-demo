@@ -173,13 +173,17 @@ export function splitRoster(members: ClubRosterMember[]) {
   return { players, staff }
 }
 
-/** The latest round whose games have already started (for current standings). */
+const REGULAR_SEASON_PHASE = "RS"
+
+/** The latest regular-season round whose games have already started (for standings). */
 export function latestPlayedRound(rounds: Round[], now = new Date()): number {
   const nowMs = now.getTime()
-  const played = rounds.filter((r) => {
+  const regularSeason = rounds.filter((r) => r.phaseTypeCode === REGULAR_SEASON_PHASE)
+  const scope = regularSeason.length > 0 ? regularSeason : rounds
+  const played = scope.filter((r) => {
     const date = r.maxGameStartDate ?? r.minGameStartDate
     return date != null && Date.parse(date) <= nowMs
   })
-  const pool = played.length > 0 ? played : rounds
+  const pool = played.length > 0 ? played : scope
   return pool.reduce((max, r) => Math.max(max, r.round), 0)
 }
