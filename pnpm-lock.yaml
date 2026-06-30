@@ -54,8 +54,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       euroleague-api:
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.1.0
+        version: 1.1.0
       react:
         specifier: ^19.2.6
         version: 19.2.7
@@ -2025,8 +2025,8 @@ packages:
     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
     engines: {node: '>= 0.6'}
 
-  euroleague-api@1.0.0:
-    resolution: {integrity: sha512-pNUo6/EuaxKKlmmIRVQAAJzTLqNbjkBhEVNYljb1DUiqEkFyD1/BkrDK+95BOJcntGSDVef0crZtwuVctlJKFQ==}
+  euroleague-api@1.1.0:
+    resolution: {integrity: sha512-OC0EyHRYwmjebNLD5MUBT25GWi4b5unpClLzQBU6+beWVkw0QhENBwIXDOjQN6/JJrqV6M0L0nm88a3TM+LNhg==}
     engines: {node: '>=20'}
 
   eventemitter3@5.0.4:
@@ -5500,7 +5500,7 @@ snapshots:
 
   etag@1.8.1: {}
 
-  euroleague-api@1.0.0:
+  euroleague-api@1.1.0:
     dependencies:
       zod: 4.4.3
 
