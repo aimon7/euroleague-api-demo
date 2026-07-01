@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { BoxscoreStats, ScheduleGame } from "euroleague-api"
+import type { ScheduleGame } from "euroleague-api"
 
 import { buildTeamSeasonArc } from "./team-season-arc"
 
@@ -8,61 +8,24 @@ function scheduleGame(
   round: number,
   localCode: string,
   roadCode: string,
+  localScore: number,
+  roadScore: number,
 ): ScheduleGame {
   return {
     gameCode,
     round,
     played: true,
-    local: { club: { code: localCode, name: localCode } },
-    road: { club: { code: roadCode, name: roadCode } },
+    local: { club: { code: localCode, name: localCode }, score: localScore },
+    road: { club: { code: roadCode, name: roadCode }, score: roadScore },
   }
-}
-
-function total(points: number, fieldGoalAttempts = 60) {
-  return {
-    points,
-    timePlayed: 2400,
-    fieldGoalsMade2: 20,
-    fieldGoalsMade3: 10,
-    fieldGoalsAttempted2: fieldGoalAttempts - 20,
-    fieldGoalsAttempted3: 20,
-    freeThrowsMade: 15,
-    freeThrowsAttempted: 20,
-    offensiveRebounds: 10,
-    defensiveRebounds: 25,
-    totalRebounds: 35,
-    assistances: 18,
-    steals: 6,
-    turnovers: 12,
-    blocksFavour: 3,
-    foulsCommited: 20,
-  }
-}
-
-function stats(
-  localPoints: number,
-  roadPoints: number,
-  localFieldGoalAttempts = 60,
-  roadFieldGoalAttempts = 60,
-): BoxscoreStats {
-  return {
-    local: { total: total(localPoints, localFieldGoalAttempts) },
-    road: { total: total(roadPoints, roadFieldGoalAttempts) },
-  } as unknown as BoxscoreStats
 }
 
 describe("team season arc", () => {
-  it("builds chronological margin and rolling net-rating points for either side", () => {
+  it("builds chronological margin and rolling margin points for either side", () => {
     const arc = buildTeamSeasonArc(
       [
-        {
-          game: scheduleGame(2, 2, "MAD", "OLY"),
-          stats: stats(75, 80, 60, 100),
-        },
-        {
-          game: scheduleGame(1, 1, "OLY", "IST"),
-          stats: stats(85, 78),
-        },
+        scheduleGame(2, 2, "MAD", "OLY", 75, 80),
+        scheduleGame(1, 1, "OLY", "IST", 85, 78),
       ],
       "OLY",
     )
@@ -79,7 +42,7 @@ describe("team season arc", () => {
       opponent: "MAD",
       result: "W",
     })
-    expect(arc[0].rollingNetRating).toBeCloseTo(9.9, 1)
-    expect(arc[1].rollingNetRating).toBeCloseTo(7.4, 1)
+    expect(arc[0].rollingMargin).toBe(7)
+    expect(arc[1].rollingMargin).toBe(6)
   })
 })

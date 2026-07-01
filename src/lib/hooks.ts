@@ -21,11 +21,10 @@ import { getClient, seasonLabel } from "./euroleague"
 import { keys } from "./keys"
 import {
   buildTeamSeasonArc,
-  scheduledGameCode,
   scheduledGameInvolvesClub,
   scheduledGameWasPlayed,
 } from "./team-season-arc"
-import type { TeamGameStats, TeamSeasonArcPoint } from "./team-season-arc"
+import type { TeamSeasonArcPoint } from "./team-season-arc"
 
 export interface SeasonOption {
   year: number
@@ -33,20 +32,6 @@ export interface SeasonOption {
 }
 
 const DAY = 1000 * 60 * 60 * 24
-const TEAM_SEASON_ARC_BATCH_SIZE = 4
-
-async function mapInBatches<TItem, TResult>(
-  items: TItem[],
-  batchSize: number,
-  mapper: (item: TItem) => Promise<TResult>,
-): Promise<TResult[]> {
-  const results: TResult[] = []
-  for (let index = 0; index < items.length; index += batchSize) {
-    const batch = items.slice(index, index + batchSize)
-    results.push(...(await Promise.all(batch.map(mapper))))
-  }
-  return results
-}
 
 /** Available seasons for the competition, newest first, for the season picker. */
 export function useSeasons(competition: Competition) {
@@ -129,21 +114,8 @@ export function useTeamSeasonArc(
       const games = schedule
         .filter((game) => scheduledGameWasPlayed(game))
         .filter((game) => scheduledGameInvolvesClub(game, clubCode))
-        .sort((a, b) => scheduledGameCode(a) - scheduledGameCode(b))
 
-      const gameStats = await mapInBatches(
-        games,
-        TEAM_SEASON_ARC_BATCH_SIZE,
-        async (game): Promise<TeamGameStats> => ({
-          game,
-          stats: await client.boxscore.getGameStats({
-            season,
-            gameCode: scheduledGameCode(game),
-          }),
-        }),
-      )
-
-      return buildTeamSeasonArc(gameStats, clubCode)
+      return buildTeamSeasonArc(games, clubCode)
     },
     enabled: clubCode.length > 0,
     staleTime: DAY,

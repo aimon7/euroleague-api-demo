@@ -29,7 +29,7 @@ interface TeamSeasonArcChartProps {
 
 const chartConfig = {
   margin: { label: "Margin", color: "var(--chart-2)" },
-  rollingNetRating: { label: "3-game net rating", color: "var(--chart-3)" },
+  rollingMargin: { label: "3-game margin", color: "var(--chart-3)" },
 } satisfies ChartConfig
 
 function gameTooltipLabel(payload: unknown): string {
@@ -65,7 +65,7 @@ export function TeamSeasonArcChart({
       <CardHeader>
         <CardTitle className="text-sm">Season arc</CardTitle>
         <CardDescription>
-          Game margin with a calculated 3-game rolling net rating from SDK boxscores
+          Game margin with a calculated 3-game rolling margin from SDK schedule scores
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -114,9 +114,9 @@ export function TeamSeasonArcChart({
               ))}
             </Bar>
             <Line
-              dataKey="rollingNetRating"
+              dataKey="rollingMargin"
               type="monotone"
-              stroke="var(--color-rollingNetRating)"
+              stroke="var(--color-rollingMargin)"
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 4 }}
