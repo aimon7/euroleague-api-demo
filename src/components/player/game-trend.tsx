@@ -27,6 +27,7 @@ interface GamePoint {
   label: string
   tooltipLabel: string
   points: number
+  rawShootingPossessions: number
   shootingPossessions: number
   trueShootingPct: number | null
   rollingTrueShootingPct: number | null
@@ -56,17 +57,21 @@ function trueShootingPct(points: number, fieldGoalAttempts: number, freeThrowAtt
 function withRollingTrueShooting(games: GamePoint[]): GamePoint[] {
   return games.map((game, index) => {
     const window = games.slice(Math.max(0, index - 2), index + 1)
-    const validWindow = window.filter((point) => point.trueShootingPct !== null)
+    const validWindow = window.filter((point) => point.rawShootingPossessions > 0)
     if (validWindow.length === 0) return game
 
-    const weightedTs =
-      validWindow.reduce(
-        (total, point) =>
-          total + (point.trueShootingPct ?? 0) * point.shootingPossessions,
-        0
-      ) / validWindow.reduce((total, point) => total + point.shootingPossessions, 0)
+    const totalPoints = validWindow.reduce((total, point) => total + point.points, 0)
+    const totalShootingPossessions = validWindow.reduce(
+      (total, point) => total + point.rawShootingPossessions,
+      0
+    )
 
-    return { ...game, rollingTrueShootingPct: round1(weightedTs) }
+    return {
+      ...game,
+      rollingTrueShootingPct: round1(
+        (totalPoints / (2 * totalShootingPossessions)) * 100
+      ),
+    }
   })
 }
 
@@ -92,14 +97,15 @@ export function GameTrend({ competition, personCode, season }: Props) {
         const points = num(entry.stats.points)
         const fieldGoalAttempts = num(entry.stats.fieldGoalsAttemptedTotal)
         const freeThrowAttempts = num(entry.stats.freeThrowsAttempted)
-        const shootingPossessions = round1(fieldGoalAttempts + 0.44 * freeThrowAttempts)
+        const rawShootingPossessions = fieldGoalAttempts + 0.44 * freeThrowAttempts
         return {
           round,
           gameCode: num(entry.game.gameCode),
           label: `R${round}`,
           tooltipLabel: `Round ${round} · ${isHome ? "vs" : "@"} ${opponent.code} · ${points} pts`,
           points,
-          shootingPossessions,
+          rawShootingPossessions,
+          shootingPossessions: round1(rawShootingPossessions),
           trueShootingPct: trueShootingPct(points, fieldGoalAttempts, freeThrowAttempts),
           rollingTrueShootingPct: null,
         }

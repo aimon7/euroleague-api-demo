@@ -18,13 +18,13 @@ function scheduleGame(
   }
 }
 
-function total(points: number) {
+function total(points: number, fieldGoalAttempts = 60) {
   return {
     points,
     timePlayed: 2400,
     fieldGoalsMade2: 20,
     fieldGoalsMade3: 10,
-    fieldGoalsAttempted2: 40,
+    fieldGoalsAttempted2: fieldGoalAttempts - 20,
     fieldGoalsAttempted3: 20,
     freeThrowsMade: 15,
     freeThrowsAttempted: 20,
@@ -39,10 +39,15 @@ function total(points: number) {
   }
 }
 
-function stats(localPoints: number, roadPoints: number): BoxscoreStats {
+function stats(
+  localPoints: number,
+  roadPoints: number,
+  localFieldGoalAttempts = 60,
+  roadFieldGoalAttempts = 60,
+): BoxscoreStats {
   return {
-    local: { total: total(localPoints) },
-    road: { total: total(roadPoints) },
+    local: { total: total(localPoints, localFieldGoalAttempts) },
+    road: { total: total(roadPoints, roadFieldGoalAttempts) },
   } as unknown as BoxscoreStats
 }
 
@@ -52,7 +57,7 @@ describe("team season arc", () => {
       [
         {
           game: scheduleGame(2, 2, "MAD", "OLY"),
-          stats: stats(75, 80),
+          stats: stats(75, 80, 60, 100),
         },
         {
           game: scheduleGame(1, 1, "OLY", "IST"),
@@ -75,6 +80,6 @@ describe("team season arc", () => {
       result: "W",
     })
     expect(arc[0].rollingNetRating).toBeCloseTo(9.9, 1)
-    expect(arc[1].rollingNetRating).toBeCloseTo(8.5, 1)
+    expect(arc[1].rollingNetRating).toBeCloseTo(7.4, 1)
   })
 })

@@ -33,6 +33,20 @@ export interface SeasonOption {
 }
 
 const DAY = 1000 * 60 * 60 * 24
+const TEAM_SEASON_ARC_BATCH_SIZE = 4
+
+async function mapInBatches<TItem, TResult>(
+  items: TItem[],
+  batchSize: number,
+  mapper: (item: TItem) => Promise<TResult>,
+): Promise<TResult[]> {
+  const results: TResult[] = []
+  for (let index = 0; index < items.length; index += batchSize) {
+    const batch = items.slice(index, index + batchSize)
+    results.push(...(await Promise.all(batch.map(mapper))))
+  }
+  return results
+}
 
 /** Available seasons for the competition, newest first, for the season picker. */
 export function useSeasons(competition: Competition) {
@@ -117,19 +131,22 @@ export function useTeamSeasonArc(
         .filter((game) => scheduledGameInvolvesClub(game, clubCode))
         .sort((a, b) => scheduledGameCode(a) - scheduledGameCode(b))
 
-      const gameStats = await Promise.all<TeamGameStats>(
-        games.map(async (game) => ({
+      const gameStats = await mapInBatches(
+        games,
+        TEAM_SEASON_ARC_BATCH_SIZE,
+        async (game): Promise<TeamGameStats> => ({
           game,
           stats: await client.boxscore.getGameStats({
             season,
             gameCode: scheduledGameCode(game),
           }),
-        })),
+        }),
       )
 
       return buildTeamSeasonArc(gameStats, clubCode)
     },
     enabled: clubCode.length > 0,
+    staleTime: DAY,
   })
 }
 
