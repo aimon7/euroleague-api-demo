@@ -1,11 +1,10 @@
+import * as React from "react"
 import {
   HeadContent,
   Outlet,
   Scripts,
   createRootRouteWithContext,
 } from "@tanstack/react-router"
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
-import { TanStackDevtools } from "@tanstack/react-devtools"
 
 import type { RouterContext } from "../router"
 import { appSearchSchema } from "@/lib/search"
@@ -14,6 +13,34 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
 import appCss from "../styles.css?url"
+
+const Devtools = import.meta.env.DEV
+  ? React.lazy(async () => {
+      const [{ TanStackDevtools }, { TanStackRouterDevtoolsPanel }] =
+        await Promise.all([
+          import("@tanstack/react-devtools"),
+          import("@tanstack/react-router-devtools"),
+        ])
+
+      return {
+        default: function TanStackDevtoolsRoot() {
+          return (
+            <TanStackDevtools
+              config={{
+                position: "bottom-right",
+              }}
+              plugins={[
+                {
+                  name: "Tanstack Router",
+                  render: <TanStackRouterDevtoolsPanel />,
+                },
+              ]}
+            />
+          )
+        },
+      }
+    })
+  : null
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   validateSearch: appSearchSchema,
@@ -66,17 +93,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <TooltipProvider>{children}</TooltipProvider>
           <Toaster />
         </ThemeProvider>
-        <TanStackDevtools
-          config={{
-            position: "bottom-right",
-          }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
+        {Devtools ? (
+          <React.Suspense fallback={null}>
+            <Devtools />
+          </React.Suspense>
+        ) : null}
         <Scripts />
       </body>
     </html>
