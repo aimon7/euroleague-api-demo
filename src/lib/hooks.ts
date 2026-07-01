@@ -111,9 +111,11 @@ export function useTeamSeasonArc(
     queryFn: async (): Promise<TeamSeasonArcPoint[]> => {
       const client = getClient(competition)
       const schedule = await client.schedule.getSeason({ season })
-      const games = schedule
-        .filter((game) => scheduledGameWasPlayed(game))
-        .filter((game) => scheduledGameInvolvesClub(game, clubCode))
+      const games = schedule.filter(
+        (game) =>
+          scheduledGameWasPlayed(game) &&
+          scheduledGameInvolvesClub(game, clubCode),
+      )
 
       return buildTeamSeasonArc(games, clubCode)
     },

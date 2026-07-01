@@ -16,8 +16,12 @@ export function AdvancedStatCard({ stat }: { stat: AdvancedStat }) {
           <span className="text-xs font-medium text-muted-foreground">{stat.label}</span>
           <Tooltip>
             <TooltipTrigger
-              render={<button type="button" />}
-              aria-label={`How ${stat.label} is calculated`}
+              render={
+                <button
+                  type="button"
+                  aria-label={`How ${stat.label} is calculated`}
+                />
+              }
               className="-mt-0.5 shrink-0 rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:outline-none"
             >
               <InfoIcon className="size-3.5" />
