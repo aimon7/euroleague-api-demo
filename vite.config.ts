@@ -12,7 +12,7 @@ const config = defineConfig(async ({ command }) => {
     viteReact(),
   ]
 
-  if (command === "serve") {
+  if (command === "serve" && process.env.VITE_DISABLE_DEVTOOLS !== "true") {
     const { devtools } = await import("@tanstack/devtools-vite")
     plugins.unshift(devtools())
   }

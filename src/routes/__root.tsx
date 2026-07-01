@@ -14,7 +14,10 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
 import appCss from "../styles.css?url"
 
-const Devtools = import.meta.env.DEV
+const devtoolsEnabled =
+  import.meta.env.DEV && import.meta.env.VITE_DISABLE_DEVTOOLS !== "true"
+
+const Devtools = devtoolsEnabled
   ? React.lazy(async () => {
       const [{ TanStackDevtools }, { TanStackRouterDevtoolsPanel }] =
         await Promise.all([

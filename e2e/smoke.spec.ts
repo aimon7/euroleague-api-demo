@@ -37,7 +37,7 @@ for (const route of ROUTES) {
     })
     page.on("pageerror", (err) => errors.push(err.message))
 
-    await page.goto(route.path, { waitUntil: "networkidle" })
+    await page.goto(route.path, { waitUntil: "load" })
     await route.ready(page)
     await page.screenshot({ path: `e2e/screenshots/${route.name}.png`, fullPage: true })
 
