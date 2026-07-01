@@ -81,7 +81,7 @@ export function GameTrend({ competition, personCode, season }: Props) {
     const games = data?.games
     if (!games || games.length === 0) return []
 
-    const points = games
+    const gamePoints = games
       .map((entry, index): GamePoint => {
         const round = num(entry.game.round) || index + 1
         const playerClubCode = entry.playerClubCode
@@ -106,7 +106,7 @@ export function GameTrend({ competition, personCode, season }: Props) {
       })
       .sort((a, b) => a.round - b.round || a.gameCode - b.gameCode)
 
-    return withRollingTrueShooting(points)
+    return withRollingTrueShooting(gamePoints)
   }, [data?.games])
 
   if (isPending) {
