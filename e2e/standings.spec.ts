@@ -75,7 +75,7 @@ test("team route: does not carry landing tab in URL", async ({ page }) => {
     waitUntil: "networkidle",
   })
 
-  await page.locator("tbody tr").first().click()
+  await page.locator("tbody tr").first().getByRole("link").click()
 
   await expect(page).toHaveURL(/\/team\//)
   await expect(page).not.toHaveURL(/tab=/)

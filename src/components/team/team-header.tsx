@@ -54,9 +54,9 @@ export function TeamHeader({ club }: { club: UseQueryResult<Club, Error> }) {
 function TeamMeta({ club }: { club: Club }) {
   const venue = club.venueCode ?? ""
   const president = club.president ?? ""
-  const website = club.website ?? ""
+  const website = safeExternalUrl(club.website)
 
-  if (venue === "" && president === "" && website === "") {
+  if (venue === "" && president === "" && !website) {
     return null
   }
 
@@ -74,7 +74,7 @@ function TeamMeta({ club }: { club: Club }) {
           {president}
         </span>
       ) : null}
-      {website !== "" ? (
+      {website ? (
         <a
           href={website}
           target="_blank"
@@ -87,6 +87,21 @@ function TeamMeta({ club }: { club: Club }) {
       ) : null}
     </div>
   )
+}
+
+function safeExternalUrl(value: string | null | undefined): string | null {
+  if (!value) {
+    return null
+  }
+
+  try {
+    const url = new URL(value)
+    return url.protocol === "http:" || url.protocol === "https:"
+      ? url.toString()
+      : null
+  } catch {
+    return null
+  }
 }
 
 function TeamHeaderSkeleton() {

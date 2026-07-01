@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { useNavigate } from "@tanstack/react-router"
+import { Link } from "@tanstack/react-router"
 import {
   flexRender,
   getCoreRowModel,
@@ -69,47 +69,64 @@ const STATIC_HEADERS: Record<(typeof COLUMN_IDS)[number], string> = {
   pointsAgainst: "PA",
 }
 
-const columns: Array<ColumnDef<StandingRow>> = [
-  { accessorKey: "position", header: "#", cell: (c) => c.getValue<number>() },
-  {
-    accessorFn: (row) => row.club?.name ?? "",
-    id: "club",
-    header: "Team",
-    enableSorting: true,
-    cell: ({ row }) => {
-      const club = row.original.club
-      return (
-        <div className="flex items-center gap-2">
-          <Avatar className="size-6 rounded-sm">
-            <AvatarImage src={club?.crest ?? undefined} alt="" />
-            <AvatarFallback className="rounded-sm text-[10px]">
-              {club?.code ?? "?"}
-            </AvatarFallback>
-          </Avatar>
-          <span className="truncate font-medium">{club?.name ?? "—"}</span>
-        </div>
-      )
+function createColumns(
+  competition: Competition,
+  season: number,
+): Array<ColumnDef<StandingRow>> {
+  return [
+    { accessorKey: "position", header: "#", cell: (c) => c.getValue<number>() },
+    {
+      accessorFn: (row) => row.club?.name ?? "",
+      id: "club",
+      header: "Team",
+      enableSorting: true,
+      cell: ({ row }) => {
+        const club = row.original.club
+        const content = (
+          <div className="flex items-center gap-2">
+            <Avatar className="size-6 rounded-sm">
+              <AvatarImage src={club?.crest ?? undefined} alt="" />
+              <AvatarFallback className="rounded-sm text-[10px]">
+                {club?.code ?? "?"}
+              </AvatarFallback>
+            </Avatar>
+            <span className="truncate font-medium">{club?.name ?? "—"}</span>
+          </div>
+        )
+        return club?.code ? (
+          <Link
+            to="/team/$clubCode"
+            params={{ clubCode: club.code }}
+            search={buildTeamSearch({ competition, season })}
+            className="inline-flex max-w-full rounded-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            {content}
+          </Link>
+        ) : (
+          content
+        )
+      },
     },
-  },
-  { accessorKey: "gamesPlayed", header: "GP" },
-  { accessorKey: "wins", header: "W" },
-  { accessorKey: "losses", header: "L" },
-  {
-    accessorKey: "winPercentage",
-    header: "Win%",
-    cell: (c) => `${c.getValue<number>().toFixed(1)}%`,
-  },
-  {
-    accessorKey: "pointsDifference",
-    header: "+/−",
-    cell: (c) => {
-      const value = c.getValue<number>()
-      return value > 0 ? `+${value}` : value
+    { accessorKey: "gamesPlayed", header: "GP" },
+    { accessorKey: "wins", header: "W" },
+    { accessorKey: "losses", header: "L" },
+    {
+      accessorKey: "winPercentage",
+      header: "Win%",
+      cell: (c) => `${c.getValue<number>().toFixed(1)}%`,
     },
-  },
-  { accessorKey: "pointsFor", header: "PF" },
-  { accessorKey: "pointsAgainst", header: "PA" },
-]
+    {
+      accessorKey: "pointsDifference",
+      header: "+/−",
+      cell: (c) => {
+        const value = c.getValue<number>()
+        return value > 0 ? `+${value}` : value
+      },
+    },
+    { accessorKey: "pointsFor", header: "PF" },
+    { accessorKey: "pointsAgainst", header: "PA" },
+  ]
+}
 
 function StandingsStaticHeader() {
   return (
@@ -158,13 +175,17 @@ function StandingsTableSkeletonBody({ rowCount }: { rowCount: number }) {
 }
 
 export function StandingsTable({ competition, season }: Props) {
-  const navigate = useNavigate()
   const clubs = useClubs(competition, season)
   const rounds = useRounds(competition, season)
   const round = rounds.data ? latestPlayedRound(rounds.data) : 0
   const standings = useStandings(competition, season, round)
 
   const [sorting, setSorting] = useState<SortingState>([{ id: "position", desc: false }])
+
+  const columns = useMemo(
+    () => createColumns(competition, season),
+    [competition, season],
+  )
 
   const rows = useMemo<StandingRow[]>(
     () => (standings.data ?? []).map(toStandingRow),
@@ -238,33 +259,20 @@ export function StandingsTable({ competition, season }: Props) {
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows.map((row) => {
-            const code = row.original.club?.code
-            return (
-              <TableRow
-                key={row.id}
-                className="cursor-pointer"
-                onClick={() => {
-                  if (code) {
-                    void navigate({
-                      to: "/team/$clubCode",
-                      params: { clubCode: code },
-                      search: buildTeamSearch({ competition, season }),
-                    })
-                  }
-                }}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className={cn(NUMERIC.has(cell.column.id) && "text-right tabular-nums")}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            )
-          })}
+          {table.getRowModel().rows.map((row) => (
+            <TableRow key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <TableCell
+                  key={cell.id}
+                  className={cn(
+                    NUMERIC.has(cell.column.id) && "text-right tabular-nums",
+                  )}
+                >
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </div>
