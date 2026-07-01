@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest"
 
 import { playerAdvancedStats } from "./advanced"
-import { boxFromStatRow, boxFromTeamStatRow } from "./mappers"
+import {
+  boxFromPersonLine,
+  boxFromStatRow,
+  boxFromTeamStatRow,
+  groupPersonGamesByClub,
+} from "./mappers"
 
 const statRow = {
   gamesPlayed: 43,
@@ -30,6 +35,64 @@ describe("box-score stat row mappers", () => {
 
   it("converts team game-clock minutes to player-minutes", () => {
     expect(boxFromTeamStatRow(statRow).minutes).toBe(8675)
+  })
+
+  it("converts people endpoint seconds to minutes", () => {
+    expect(boxFromPersonLine({ timePlayed: 1500 }).minutes).toBe(25)
+  })
+})
+
+describe("person game grouping", () => {
+  const game = (
+    playerClubCode: string | null,
+    round: number,
+    points: number,
+    timePlayed: number,
+  ) => ({
+    playerClubCode,
+    game: {
+      round,
+      local: { club: { code: "PAR", name: "Partizan" } },
+      road: { club: { code: "OLY", name: "Olympiacos" } },
+    },
+    stats: {
+      timePlayed,
+      points,
+      fieldGoalsMadeTotal: 1,
+      fieldGoalsAttemptedTotal: 2,
+      fieldGoalsMade3: 1,
+      fieldGoalsAttempted3: 1,
+      freeThrowsMade: 2,
+      freeThrowsAttempted: 2,
+      offensiveRebounds: 1,
+      defensiveRebounds: 2,
+      totalRebounds: 3,
+      assistances: 4,
+      steals: 1,
+      turnovers: 1,
+      blocksFavour: 1,
+      foulsCommited: 2,
+    },
+  })
+
+  it("sums player games by club code and sorts latest stint first", () => {
+    const stints = groupPersonGamesByClub([
+      game("PAR", 1, 10, 1200),
+      game("OLY", 20, 8, 900),
+      game("PAR", 2, 12, 1500),
+      game(null, 3, 99, 600),
+    ] as Parameters<typeof groupPersonGamesByClub>[0])
+
+    expect(stints).toHaveLength(2)
+    expect(stints[0].club.code).toBe("OLY")
+    expect(stints[0].box.gamesPlayed).toBe(1)
+    expect(stints[0].box.points).toBe(8)
+    expect(stints[0].box.minutes).toBe(15)
+
+    expect(stints[1].club).toMatchObject({ code: "PAR", name: "Partizan" })
+    expect(stints[1].box.gamesPlayed).toBe(2)
+    expect(stints[1].box.points).toBe(22)
+    expect(stints[1].box.minutes).toBe(45)
   })
 })
 

@@ -1,4 +1,4 @@
-import type { PlayerStat, Standing, TeamStat } from "euroleague-api"
+import type { PersonStats, PlayerStat, Standing, TeamStat } from "euroleague-api"
 
 // --- primitives -------------------------------------------------------------
 
@@ -84,6 +84,50 @@ export interface BoxTotals {
   fouls: number
 }
 
+function emptyBox(gamesPlayed = 0): BoxTotals {
+  return {
+    gamesPlayed,
+    minutes: 0,
+    points: 0,
+    fieldGoalsMade: 0,
+    fieldGoalsAttempted: 0,
+    threePointersMade: 0,
+    threePointersAttempted: 0,
+    freeThrowsMade: 0,
+    freeThrowsAttempted: 0,
+    offensiveRebounds: 0,
+    defensiveRebounds: 0,
+    totalRebounds: 0,
+    assists: 0,
+    steals: 0,
+    turnovers: 0,
+    blocks: 0,
+    fouls: 0,
+  }
+}
+
+function sumBoxes(a: BoxTotals, b: BoxTotals): BoxTotals {
+  return {
+    gamesPlayed: a.gamesPlayed + b.gamesPlayed,
+    minutes: a.minutes + b.minutes,
+    points: a.points + b.points,
+    fieldGoalsMade: a.fieldGoalsMade + b.fieldGoalsMade,
+    fieldGoalsAttempted: a.fieldGoalsAttempted + b.fieldGoalsAttempted,
+    threePointersMade: a.threePointersMade + b.threePointersMade,
+    threePointersAttempted: a.threePointersAttempted + b.threePointersAttempted,
+    freeThrowsMade: a.freeThrowsMade + b.freeThrowsMade,
+    freeThrowsAttempted: a.freeThrowsAttempted + b.freeThrowsAttempted,
+    offensiveRebounds: a.offensiveRebounds + b.offensiveRebounds,
+    defensiveRebounds: a.defensiveRebounds + b.defensiveRebounds,
+    totalRebounds: a.totalRebounds + b.totalRebounds,
+    assists: a.assists + b.assists,
+    steals: a.steals + b.steals,
+    turnovers: a.turnovers + b.turnovers,
+    blocks: a.blocks + b.blocks,
+    fouls: a.fouls + b.fouls,
+  }
+}
+
 /** Adapter for stat rows whose minutes already represent player minutes. */
 export function boxFromStatRow(row: Record<string, unknown>): BoxTotals {
   const fgm2 = num(row.twoPointersMade)
@@ -120,11 +164,17 @@ export function boxFromTeamStatRow(row: Record<string, unknown>): BoxTotals {
   return { ...box, minutes: box.minutes * 5 }
 }
 
-/** Adapter for `people.getSeasonStats`/`getCareerStats` lines (`accumulated`/`averagePerGame`). */
-export function boxFromPersonLine(line: Record<string, unknown>): BoxTotals {
+/**
+ * Adapter for `people.getSeasonStats`/`getCareerStats` lines. Those endpoints
+ * report `timePlayed` in seconds, while formulas expect minutes.
+ */
+export function boxFromPersonLine(
+  line: Record<string, unknown>,
+  gamesPlayed = num(line.gamesPlayed),
+): BoxTotals {
   return {
-    gamesPlayed: num(line.gamesPlayed),
-    minutes: num(line.timePlayed),
+    gamesPlayed,
+    minutes: num(line.timePlayed) / 60,
     points: num(line.points),
     fieldGoalsMade: num(line.fieldGoalsMadeTotal),
     fieldGoalsAttempted: num(line.fieldGoalsAttemptedTotal),
@@ -141,6 +191,53 @@ export function boxFromPersonLine(line: Record<string, unknown>): BoxTotals {
     blocks: num(line.blocksFavour),
     fouls: num(line.foulsCommited),
   }
+}
+
+type PersonGameStat = PersonStats["games"][number]
+
+export interface PlayerClubStint {
+  club: ClubRef
+  box: BoxTotals
+  latestRound: number
+}
+
+function clubFromPersonGame(entry: PersonGameStat, clubCode: string): ClubRef {
+  const local = parseClubRef(entry.game.local.club)
+  if (local?.code === clubCode) return local
+
+  const road = parseClubRef(entry.game.road.club)
+  if (road?.code === clubCode) return road
+
+  return { code: clubCode, name: clubCode, crest: null }
+}
+
+/** Sum a player's per-game people stats into one box-score total per represented club. */
+export function groupPersonGamesByClub(games: PersonGameStat[]): PlayerClubStint[] {
+  const groups = new Map<string, PlayerClubStint>()
+
+  for (const entry of games) {
+    const clubCode =
+      typeof entry.playerClubCode === "string" && entry.playerClubCode.length > 0
+        ? entry.playerClubCode
+        : null
+    if (!clubCode) continue
+
+    const current =
+      groups.get(clubCode) ??
+      ({
+        club: clubFromPersonGame(entry, clubCode),
+        box: emptyBox(),
+        latestRound: 0,
+      } satisfies PlayerClubStint)
+
+    groups.set(clubCode, {
+      ...current,
+      box: sumBoxes(current.box, boxFromPersonLine(entry.stats, 1)),
+      latestRound: Math.max(current.latestRound, num(entry.game.round)),
+    })
+  }
+
+  return [...groups.values()].sort((a, b) => b.latestRound - a.latestRound)
 }
 
 // --- view-model row mappers -------------------------------------------------
