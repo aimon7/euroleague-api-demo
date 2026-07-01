@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react"
 import type { ReactNode } from "react"
 import { Link, createFileRoute } from "@tanstack/react-router"
 
@@ -15,8 +16,14 @@ import {
 import { PlayerHeader } from "@/components/player/player-header"
 import { SeasonSummary } from "@/components/player/season-summary"
 import { AdvancedStats } from "@/components/player/advanced-stats"
-import { GameTrend } from "@/components/player/game-trend"
 import { personDisplayName } from "@/components/player/format"
+import { Skeleton } from "@/components/ui/skeleton"
+
+const GameTrend = lazy(() =>
+  import("@/components/player/game-trend").then((module) => ({
+    default: module.GameTrend,
+  }))
+)
 
 export const Route = createFileRoute("/player/$personCode")({
   validateSearch: appSearchSchema,
@@ -35,7 +42,9 @@ function Section({
   return (
     <section className="space-y-3">
       <div className="space-y-1">
-        <h2 className="font-heading text-lg font-semibold tracking-tight">{title}</h2>
+        <h2 className="font-heading text-lg font-semibold tracking-tight">
+          {title}
+        </h2>
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
       {children}
@@ -56,7 +65,10 @@ function PlayerRoute() {
           <BreadcrumbItem>
             <BreadcrumbLink
               render={
-                <Link to="/" search={buildLandingSearch({ competition, season })} />
+                <Link
+                  to="/"
+                  search={buildLandingSearch({ competition, season })}
+                />
               }
             >
               Home
@@ -97,7 +109,15 @@ function PlayerRoute() {
         title="Efficiency trend"
         description="True Shooting % by game, its 3-game rolling trend, and the shooting volume behind each point."
       >
-        <GameTrend competition={competition} personCode={personCode} season={season} />
+        <Suspense
+          fallback={<Skeleton className="h-[300px] w-full rounded-lg" />}
+        >
+          <GameTrend
+            competition={competition}
+            personCode={personCode}
+            season={season}
+          />
+        </Suspense>
       </Section>
     </div>
   )

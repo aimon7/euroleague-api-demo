@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { lazy, Suspense, useMemo } from "react"
 import type { Competition, TeamStat } from "euroleague-api"
 
 import { useTeamStats } from "@/lib/hooks"
@@ -8,8 +8,6 @@ import type { AdvancedStat } from "@/lib/advanced"
 import { Skeleton } from "@/components/ui/skeleton"
 import { QueryError } from "@/components/app/query-error"
 import { AdvancedStatCard } from "./advanced-stat-card"
-import { TeamRatingsChart } from "./team-ratings-chart"
-import { TeamSeasonArcChart } from "./team-season-arc-chart"
 
 interface TeamStatsPanelProps {
   competition: Competition
@@ -19,7 +17,23 @@ interface TeamStatsPanelProps {
 
 const STAT_GRID = "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
 
-export function TeamStatsPanel({ competition, season, clubCode }: TeamStatsPanelProps) {
+const TeamRatingsChart = lazy(() =>
+  import("./team-ratings-chart").then((module) => ({
+    default: module.TeamRatingsChart,
+  }))
+)
+
+const TeamSeasonArcChart = lazy(() =>
+  import("./team-season-arc-chart").then((module) => ({
+    default: module.TeamSeasonArcChart,
+  }))
+)
+
+export function TeamStatsPanel({
+  competition,
+  season,
+  clubCode,
+}: TeamStatsPanelProps) {
   const traditional = useTeamStats(competition, season, "traditional")
   const opponents = useTeamStats(competition, season, "opponentsTraditional")
   const advanced = useTeamStats(competition, season, "advanced")
@@ -39,20 +53,33 @@ export function TeamStatsPanel({ competition, season, clubCode }: TeamStatsPanel
       return null
     }
     const advancedRow = findRow(advanced.data)
-    return teamAdvancedStats(boxFromTeamStatRow(teamRow), boxFromTeamStatRow(oppRow), advancedRow)
+    return teamAdvancedStats(
+      boxFromTeamStatRow(teamRow),
+      boxFromTeamStatRow(oppRow),
+      advancedRow
+    )
   }, [traditional.data, opponents.data, advanced.data, clubCode])
 
   if (traditional.isError || opponents.isError || advanced.isError) {
     return (
       <div className="space-y-3">
         {traditional.isError ? (
-          <QueryError error={traditional.error} onRetry={() => void traditional.refetch()} />
+          <QueryError
+            error={traditional.error}
+            onRetry={() => void traditional.refetch()}
+          />
         ) : null}
         {opponents.isError ? (
-          <QueryError error={opponents.error} onRetry={() => void opponents.refetch()} />
+          <QueryError
+            error={opponents.error}
+            onRetry={() => void opponents.refetch()}
+          />
         ) : null}
         {advanced.isError ? (
-          <QueryError error={advanced.error} onRetry={() => void advanced.refetch()} />
+          <QueryError
+            error={advanced.error}
+            onRetry={() => void advanced.refetch()}
+          />
         ) : null}
       </div>
     )
@@ -81,12 +108,16 @@ export function TeamStatsPanel({ competition, season, clubCode }: TeamStatsPanel
 
   return (
     <div className="space-y-4">
-      <TeamSeasonArcChart
-        competition={competition}
-        season={season}
-        clubCode={clubCode}
-      />
-      <TeamRatingsChart stats={stats} />
+      <Suspense fallback={<Skeleton className="h-64 w-full rounded-lg" />}>
+        <TeamSeasonArcChart
+          competition={competition}
+          season={season}
+          clubCode={clubCode}
+        />
+      </Suspense>
+      <Suspense fallback={<Skeleton className="h-52 w-full rounded-lg" />}>
+        <TeamRatingsChart stats={stats} />
+      </Suspense>
       <div className={STAT_GRID}>
         {stats.map((stat) => (
           <AdvancedStatCard key={stat.key} stat={stat} />
