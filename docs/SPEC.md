@@ -154,6 +154,6 @@ export function usePlayerStats(
 
 ## Open Questions
 
-- **Minutes-unit reconciliation**: advanced-stat scaling (e.g. `TmMP/5`, `MP` in the USG%/AST%/rebound-% formulas) depends on whether the SDK returns minutes as per-game decimal values vs accumulated seconds/minutes. The exact unit per `mode`/`type` must be confirmed and normalized in `src/lib/advanced` before the percentage metrics can be trusted.
+- **Minutes-unit convention**: player stat rows expose player minutes; accumulated team stat rows expose team game-clock minutes. `src/lib/mappers.ts` converts team stat rows to five-player minutes before advanced formulas consume `TmMP`.
 - Confirm which fields the API's `type: "advanced"` team set exposes verbatim vs which must be computed, so the UI's `From API` / `Calculated` markers stay accurate.
 - Confirm the canonical latest-season default if/when a new season opens (currently `2025`).
