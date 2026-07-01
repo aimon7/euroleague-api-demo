@@ -5,7 +5,7 @@ This document is the methodology sheet for the advanced basketball statistics su
 - **`From API`** — already returned by the SDK's `type: "advanced"` stats and shown verbatim.
 - **`Calculated`** — computed by this app from traditional box-score totals.
 
-> **Implementation note.** The implementation lives in `src/lib/advanced/`. Each metric is exposed as an object of the shape `{ key, label, value, source: 'api' | 'computed', formula, reference }`, so the UI can render the value, label it `From API` / `Calculated`, and link to its reference. **Minutes-unit scaling** is reconciled in `src/lib/mappers.ts` before any minutes-dependent formula runs: player rows already expose player minutes, while team rows expose team game-clock minutes and are converted to five-player minutes for `TmMP`.
+> **Implementation note.** The implementation lives in `src/lib/advanced/`. Each metric is exposed as an object of the shape `{ key, label, value, source: 'api' | 'computed', formula, reference }`, so the UI can render the value, label it `From API` / `Calculated`, and link to its reference. **Minutes-unit scaling** (per-game decimal vs accumulated seconds/minutes) is reconciled in code before any minutes-dependent formula runs, so all of `MP`, `TmMP`, etc. share a consistent unit.
 
 ## Inputs
 
@@ -35,7 +35,7 @@ The formulas below draw on box-score totals exposed by the SDK:
 | `Opp*` | **Opponents'** totals (e.g. `OppDREB`, `OppPoss`) |
 | Poss | Possessions (see Team metrics) |
 
-`TmMP/5` converts team player-minutes into team **game-clock minutes** (a five-player floor), which is the standard denominator basis for the percentage metrics below. The SDK's accumulated team stat rows already report game-clock minutes, so the app converts those rows to player-minutes at the mapper boundary before formulas run.
+`TmMP/5` converts team minutes into team **player-minutes per position slot** (a five-player floor), which is the standard denominator basis for the percentage metrics below.
 
 ---
 

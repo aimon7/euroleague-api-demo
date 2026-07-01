@@ -3,7 +3,7 @@ import type { Competition } from "euroleague-api"
 import { ArrowSquareOutIcon, CalculatorIcon } from "@phosphor-icons/react"
 
 import { usePlayerStats, useTeamStats } from "@/lib/hooks"
-import { boxFromStatRow, boxFromTeamStatRow, parseClubRef, parseEntity } from "@/lib/mappers"
+import { boxFromStatRow, parseClubRef, parseEntity } from "@/lib/mappers"
 import { formatStat, playerAdvancedStats } from "@/lib/advanced"
 import type { AdvancedStat } from "@/lib/advanced"
 import { badgeVariants } from "@/components/ui/badge"
@@ -112,8 +112,8 @@ export function AdvancedStats({ competition, personCode, season }: Props) {
       status: "ok",
       stats: playerAdvancedStats(
         boxFromStatRow(playerRow),
-        boxFromTeamStatRow(teamRow),
-        boxFromTeamStatRow(opponentRow),
+        boxFromStatRow(teamRow),
+        boxFromStatRow(opponentRow),
       ),
     }
   }, [players.data, teamTraditional.data, teamOpponents.data, personCode])

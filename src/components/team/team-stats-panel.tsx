@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import type { Competition, TeamStat } from "euroleague-api"
 
 import { useTeamStats } from "@/lib/hooks"
-import { boxFromTeamStatRow, parseClubRef } from "@/lib/mappers"
+import { boxFromStatRow, parseClubRef } from "@/lib/mappers"
 import { teamAdvancedStats } from "@/lib/advanced"
 import type { AdvancedStat } from "@/lib/advanced"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -38,7 +38,7 @@ export function TeamStatsPanel({ competition, season, clubCode }: TeamStatsPanel
       return null
     }
     const advancedRow = findRow(advanced.data)
-    return teamAdvancedStats(boxFromTeamStatRow(teamRow), boxFromTeamStatRow(oppRow), advancedRow)
+    return teamAdvancedStats(boxFromStatRow(teamRow), boxFromStatRow(oppRow), advancedRow)
   }, [traditional.data, opponents.data, advanced.data, clubCode])
 
   if (traditional.isError || opponents.isError || advanced.isError) {
