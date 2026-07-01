@@ -36,18 +36,23 @@ function Landing() {
   return (
     <div className="space-y-6">
       <section className="space-y-2">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
           {COMPETITION_LABELS[competition]}, fully typed.
         </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
           A live showcase of the{" "}
-          <span className="font-medium text-foreground">euroleague-api</span> SDK. Pick a
-          competition and season above, browse the clubs, sort the standings, and drill into
-          any team or player — with advanced stats computed in the browser.
+          <span className="font-medium text-foreground">euroleague-api</span>{" "}
+          SDK. Pick a competition and season above, browse the clubs, sort the
+          standings, and drill into any team or player — with advanced stats
+          computed in the browser.
         </p>
       </section>
 
-      <Tabs value={landingTab(search)} onValueChange={setTab} className="space-y-4">
+      <Tabs
+        value={landingTab(search)}
+        onValueChange={setTab}
+        className="space-y-4"
+      >
         <TabsList>
           <TabsTrigger value="clubs">Clubs</TabsTrigger>
           <TabsTrigger value="standings">Standings</TabsTrigger>

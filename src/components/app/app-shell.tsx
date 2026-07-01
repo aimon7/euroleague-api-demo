@@ -22,7 +22,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Link
             to="/"
             search={homeSearch}
-            className="font-serif text-lg font-semibold tracking-tight"
+            className="font-heading text-lg font-semibold tracking-tight"
           >
             EuroLeague API Demo
           </Link>
@@ -33,7 +33,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="container mx-auto w-full flex-1 px-4 py-6">{children}</main>
+      <main className="container mx-auto w-full flex-1 px-4 py-6">
+        {children}
+      </main>
 
       <footer className="container mx-auto px-4 py-8 text-xs text-muted-foreground">
         A showcase for the{" "}

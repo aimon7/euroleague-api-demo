@@ -30,7 +30,7 @@ interface GamePoint {
 }
 
 const chartConfig = {
-  points: { label: "Points", color: "var(--chart-1)" },
+  points: { label: "Points", color: "var(--chart-2)" },
   pir: { label: "PIR", color: "var(--chart-3)" },
 } satisfies ChartConfig
 
@@ -43,7 +43,7 @@ export function GameTrend({ competition, personCode, season }: Props) {
   const { data, isPending, isError, error, refetch } = usePersonSeasonStats(
     competition,
     personCode,
-    season,
+    season
   )
 
   const series = useMemo<GamePoint[]>(() => {
@@ -86,8 +86,15 @@ export function GameTrend({ competition, personCode, season }: Props) {
   }
 
   return (
-    <ChartContainer config={chartConfig} className="aspect-auto h-[300px] w-full">
-      <LineChart accessibilityLayer data={series} margin={{ left: 4, right: 12, top: 8 }}>
+    <ChartContainer
+      config={chartConfig}
+      className="aspect-auto h-[300px] w-full"
+    >
+      <LineChart
+        accessibilityLayer
+        data={series}
+        margin={{ left: 4, right: 12, top: 8 }}
+      >
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="label"
@@ -98,7 +105,11 @@ export function GameTrend({ competition, personCode, season }: Props) {
         />
         <YAxis tickLine={false} axisLine={false} width={28} tickMargin={4} />
         <ChartTooltip
-          content={<ChartTooltipContent labelFormatter={(_, payload) => gameTooltipLabel(payload)} />}
+          content={
+            <ChartTooltipContent
+              labelFormatter={(_, payload) => gameTooltipLabel(payload)}
+            />
+          }
         />
         <ChartLegend content={<ChartLegendContent />} />
         <Line
@@ -115,6 +126,7 @@ export function GameTrend({ competition, personCode, season }: Props) {
           type="monotone"
           stroke="var(--color-pir)"
           strokeWidth={2}
+          strokeDasharray="4 4"
           dot={false}
           activeDot={{ r: 4 }}
           isAnimationActive={false}

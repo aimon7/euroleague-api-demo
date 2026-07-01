@@ -18,8 +18,8 @@ import type { ChartConfig } from "@/components/ui/chart"
 
 const chartConfig = {
   value: { label: "Rating" },
-  ortg: { label: "Offensive", color: "var(--chart-1)" },
-  drtg: { label: "Defensive", color: "var(--chart-2)" },
+  ortg: { label: "Offensive", color: "var(--chart-2)" },
+  drtg: { label: "Defensive", color: "var(--chart-3)" },
 } satisfies ChartConfig
 
 interface RatingDatum {
@@ -43,8 +43,18 @@ export function TeamRatingsChart({ stats }: { stats: AdvancedStat[] }) {
       return found?.value ?? 0
     }
     return [
-      { key: "ortg", label: "Offensive", value: round1(valueOf("ortg")), fill: "var(--color-ortg)" },
-      { key: "drtg", label: "Defensive", value: round1(valueOf("drtg")), fill: "var(--color-drtg)" },
+      {
+        key: "ortg",
+        label: "Offensive",
+        value: round1(valueOf("ortg")),
+        fill: "var(--color-ortg)",
+      },
+      {
+        key: "drtg",
+        label: "Defensive",
+        value: round1(valueOf("drtg")),
+        fill: "var(--color-drtg)",
+      },
     ]
   }, [stats])
 
@@ -52,16 +62,44 @@ export function TeamRatingsChart({ stats }: { stats: AdvancedStat[] }) {
     <Card>
       <CardHeader>
         <CardTitle className="text-sm">Efficiency ratings</CardTitle>
-        <CardDescription>Points per 100 possessions — scored vs. allowed</CardDescription>
+        <CardDescription>
+          Points per 100 possessions — scored vs. allowed
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="aspect-auto h-52 w-full">
-          <BarChart accessibilityLayer data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+        <ChartContainer
+          config={chartConfig}
+          className="aspect-auto h-52 w-full"
+        >
+          <BarChart
+            accessibilityLayer
+            data={data}
+            margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+          >
             <CartesianGrid vertical={false} />
-            <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
-            <YAxis domain={Y_DOMAIN} tickLine={false} axisLine={false} width={36} tickMargin={4} />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-            <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={96} isAnimationActive={false}>
+            <XAxis
+              dataKey="label"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+            />
+            <YAxis
+              domain={Y_DOMAIN}
+              tickLine={false}
+              axisLine={false}
+              width={36}
+              tickMargin={4}
+            />
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <Bar
+              dataKey="value"
+              radius={[6, 6, 0, 0]}
+              maxBarSize={96}
+              isAnimationActive={false}
+            >
               {data.map((datum) => (
                 <Cell key={datum.key} fill={datum.fill} />
               ))}

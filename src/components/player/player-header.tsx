@@ -42,7 +42,7 @@ function initials(name: string): string {
 export function PlayerHeader({ competition, personCode }: Props) {
   const { data, isPending, isError, error, refetch } = usePersonProfile(
     competition,
-    personCode,
+    personCode
   )
 
   if (isPending) {
@@ -89,14 +89,17 @@ export function PlayerHeader({ competition, personCode }: Props) {
   return (
     <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-end sm:text-left">
       <Avatar className="size-20 rounded-full ring-1 ring-foreground/10 sm:size-24">
-        <AvatarImage src={data.images?.headshot ?? undefined} alt={displayName} />
+        <AvatarImage
+          src={data.images?.headshot ?? undefined}
+          alt={displayName}
+        />
         <AvatarFallback className="text-xl font-medium">
           {initials(displayName)}
         </AvatarFallback>
       </Avatar>
 
       <div className="flex flex-col gap-2">
-        <h1 className="font-serif text-3xl leading-none font-semibold tracking-tight sm:text-4xl">
+        <h1 className="font-heading text-3xl leading-none font-semibold tracking-tight sm:text-4xl">
           {displayName}
         </h1>
         {badges.length > 0 ? (
