@@ -5,16 +5,18 @@ This document is the methodology sheet for the advanced basketball statistics su
 - **`From API`** — already returned by the SDK's `type: "advanced"` stats and shown verbatim.
 - **`Calculated`** — computed by this app from traditional box-score totals.
 
-> **Implementation note.** The implementation lives in `src/lib/advanced/`. Each metric is exposed as an object of the shape `{ key, label, value, source: 'api' | 'computed', formula, reference }`, so the UI can render the value, label it `From API` / `Calculated`, and link to its reference. **Minutes-unit scaling** is reconciled in `src/lib/mappers.ts` before any minutes-dependent formula runs: player rows already expose player minutes, while team rows expose team game-clock minutes and are converted to five-player minutes for `TmMP`.
+> **Implementation note.** The implementation lives in `src/lib/advanced/`. Each metric is exposed as an object of the shape `{ key, label, value, source: 'api' | 'computed', formula, reference }`, so the UI can render the value, label it `From API` / `Calculated`, and link to its reference. **Minutes-unit scaling** is reconciled in `src/lib/mappers.ts` before any minutes-dependent formula runs: people endpoint rows expose player time in seconds and are converted to minutes, while team rows expose team game-clock minutes and are converted to five-player minutes for `TmMP`.
 
 ## Inputs
 
 The formulas below draw on box-score totals exposed by the SDK:
 
-- **Player season totals** — `players.getStats({ type: "traditional", mode: "Accumulated" })`.
+- **Player club-stint totals** — `people.getSeasonStats({ personCode, season }).games`, grouped by each game's `playerClubCode` and summed for the games the player played with that club.
 - **Team totals** — `teams.getStats({ type: "traditional", mode: "Accumulated" })`.
 - **Opponent totals** — `teams.getStats({ type: "opponentsTraditional", mode: "Accumulated" })`.
 - **Team advanced set** (`From API`) — `teams.getStats({ type: "advanced", mode: "Accumulated" })`, which the API returns directly: **eFG%, TS%, OREB%/DREB%/REB%, AST/TO, assistsRatio, turnoversRatio, twoPointRate, threePointRate, freeThrowsRate, and points distribution**. These are shown as `From API`.
+
+For players who appear for multiple clubs in one season, the player advanced metrics are rendered once per club stint. The player's box-score totals in each group include only games with that `playerClubCode`. Team-context metrics such as USG%, AST%, rebound rates, STL%, and BLK% still use the matching club's accumulated season team and opponent rows; the app does not yet fetch every game boxscore to limit team/opponent context to only the games in that stint.
 
 ## Abbreviations
 
