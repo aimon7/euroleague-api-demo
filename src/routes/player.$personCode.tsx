@@ -94,8 +94,8 @@ function PlayerRoute() {
       </Section>
 
       <Section
-        title="Per-game trend"
-        description="Points and PIR (valuation) across each game of the season, in round order."
+        title="Efficiency trend"
+        description="True Shooting % by game, its 3-game rolling trend, and the shooting volume behind each point."
       >
         <GameTrend competition={competition} personCode={personCode} season={season} />
       </Section>
