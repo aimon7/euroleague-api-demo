@@ -5,6 +5,12 @@ import { Bar, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from "recharts"
 import { usePersonSeasonStats } from "@/lib/hooks"
 import { num } from "@/lib/mappers"
 import {
+  round1,
+  trueShootingPctFromInputs,
+  withRollingTrueShooting,
+} from "@/lib/player-efficiency-trend"
+import type { PlayerEfficiencyPoint } from "@/lib/player-efficiency-trend"
+import {
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
@@ -21,16 +27,13 @@ interface Props {
   season: number
 }
 
-interface GamePoint {
+interface GamePoint extends PlayerEfficiencyPoint {
   round: number
   gameCode: number
   label: string
   tooltipLabel: string
-  points: number
-  rawShootingPossessions: number
   shootingPossessions: number
   trueShootingPct: number | null
-  rollingTrueShootingPct: number | null
 }
 
 const chartConfig = {
@@ -39,40 +42,14 @@ const chartConfig = {
   shootingPossessions: { label: "Shooting poss.", color: "var(--chart-1)" },
 } satisfies ChartConfig
 
+const efficiencyDomain: [number, (dataMax: number) => number] = [
+  0,
+  (dataMax) => Math.ceil(Math.max(100, dataMax) / 10) * 10,
+]
+
 function gameTooltipLabel(payload: unknown): string {
   const items = payload as Array<{ payload?: GamePoint }> | undefined
   return items?.[0]?.payload?.tooltipLabel ?? ""
-}
-
-function round1(value: number): number {
-  return Math.round(value * 10) / 10
-}
-
-function trueShootingPct(points: number, fieldGoalAttempts: number, freeThrowAttempts: number) {
-  const shootingPossessions = fieldGoalAttempts + 0.44 * freeThrowAttempts
-  if (shootingPossessions === 0) return null
-  return round1((points / (2 * shootingPossessions)) * 100)
-}
-
-function withRollingTrueShooting(games: GamePoint[]): GamePoint[] {
-  return games.map((game, index) => {
-    const window = games.slice(Math.max(0, index - 2), index + 1)
-    const validWindow = window.filter((point) => point.rawShootingPossessions > 0)
-    if (validWindow.length === 0) return game
-
-    const totalPoints = validWindow.reduce((total, point) => total + point.points, 0)
-    const totalShootingPossessions = validWindow.reduce(
-      (total, point) => total + point.rawShootingPossessions,
-      0
-    )
-
-    return {
-      ...game,
-      rollingTrueShootingPct: round1(
-        (totalPoints / (2 * totalShootingPossessions)) * 100
-      ),
-    }
-  })
 }
 
 export function GameTrend({ competition, personCode, season }: Props) {
@@ -106,7 +83,11 @@ export function GameTrend({ competition, personCode, season }: Props) {
           points,
           rawShootingPossessions,
           shootingPossessions: round1(rawShootingPossessions),
-          trueShootingPct: trueShootingPct(points, fieldGoalAttempts, freeThrowAttempts),
+          trueShootingPct: trueShootingPctFromInputs(
+            points,
+            fieldGoalAttempts,
+            freeThrowAttempts,
+          ),
           rollingTrueShootingPct: null,
         }
       })
@@ -151,7 +132,7 @@ export function GameTrend({ competition, personCode, season }: Props) {
         />
         <YAxis
           yAxisId="efficiency"
-          domain={[0, 100]}
+          domain={efficiencyDomain}
           tickLine={false}
           axisLine={false}
           width={28}
