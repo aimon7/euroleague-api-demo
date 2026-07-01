@@ -19,6 +19,13 @@ import type {
 
 import { getClient, seasonLabel } from "./euroleague"
 import { keys } from "./keys"
+import {
+  buildTeamSeasonArc,
+  scheduledGameCode,
+  scheduledGameInvolvesClub,
+  scheduledGameWasPlayed,
+} from "./team-season-arc"
+import type { TeamGameStats, TeamSeasonArcPoint } from "./team-season-arc"
 
 export interface SeasonOption {
   year: number
@@ -92,6 +99,37 @@ export function useStandings(
     queryFn: (): Promise<Standing[]> =>
       getClient(competition).standings.getRound({ season, round, type }),
     enabled: round > 0,
+  })
+}
+
+export function useTeamSeasonArc(
+  competition: Competition,
+  season: number,
+  clubCode: string,
+) {
+  return useQuery({
+    queryKey: keys.teamSeasonArc(competition, season, clubCode),
+    queryFn: async (): Promise<TeamSeasonArcPoint[]> => {
+      const client = getClient(competition)
+      const schedule = await client.schedule.getSeason({ season })
+      const games = schedule
+        .filter((game) => scheduledGameWasPlayed(game))
+        .filter((game) => scheduledGameInvolvesClub(game, clubCode))
+        .sort((a, b) => scheduledGameCode(a) - scheduledGameCode(b))
+
+      const gameStats = await Promise.all<TeamGameStats>(
+        games.map(async (game) => ({
+          game,
+          stats: await client.boxscore.getGameStats({
+            season,
+            gameCode: scheduledGameCode(game),
+          }),
+        })),
+      )
+
+      return buildTeamSeasonArc(gameStats, clubCode)
+    },
+    enabled: clubCode.length > 0,
   })
 }
 

@@ -23,6 +23,8 @@ export const keys = {
   standings: (c: Competition, season: number, round: number, type: StandingsType) =>
     [...keys.root(c), "standings", season, round, type] as const,
 
+  teamSeasonArc: (c: Competition, season: number, clubCode: string) =>
+    [...keys.root(c), "team-season-arc", season, clubCode] as const,
   teamStats: (c: Competition, season: number, type: TeamStatsType) =>
     [...keys.root(c), "team-stats", season, type] as const,
   playerStats: (c: Competition, season: number, type: PlayerStatsType) =>

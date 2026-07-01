@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { QueryError } from "@/components/app/query-error"
 import { AdvancedStatCard } from "./advanced-stat-card"
 import { TeamRatingsChart } from "./team-ratings-chart"
+import { TeamSeasonArcChart } from "./team-season-arc-chart"
 
 interface TeamStatsPanelProps {
   competition: Competition
@@ -60,7 +61,7 @@ export function TeamStatsPanel({ competition, season, clubCode }: TeamStatsPanel
   if (traditional.isPending || opponents.isPending || advanced.isPending) {
     return (
       <div className="space-y-4">
-        <Skeleton className="aspect-[2/1] w-full rounded-lg" />
+        <Skeleton className="aspect-2/1 w-full rounded-lg" />
         <div className={STAT_GRID}>
           {Array.from({ length: 8 }).map((_, i) => (
             <Skeleton key={i} className="h-24 w-full rounded-lg" />
@@ -80,6 +81,11 @@ export function TeamStatsPanel({ competition, season, clubCode }: TeamStatsPanel
 
   return (
     <div className="space-y-4">
+      <TeamSeasonArcChart
+        competition={competition}
+        season={season}
+        clubCode={clubCode}
+      />
       <TeamRatingsChart stats={stats} />
       <div className={STAT_GRID}>
         {stats.map((stat) => (
