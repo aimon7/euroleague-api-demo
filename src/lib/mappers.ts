@@ -84,7 +84,7 @@ export interface BoxTotals {
   fouls: number
 }
 
-/** Adapter for `players.getStats` / `teams.getStats` rows (v3 "traditional" vocab). */
+/** Adapter for stat rows whose minutes already represent player minutes. */
 export function boxFromStatRow(row: Record<string, unknown>): BoxTotals {
   const fgm2 = num(row.twoPointersMade)
   const fgm3 = num(row.threePointersMade)
@@ -109,6 +109,15 @@ export function boxFromStatRow(row: Record<string, unknown>): BoxTotals {
     blocks: num(row.blocks),
     fouls: num(row.foulsCommited),
   }
+}
+
+/**
+ * Adapter for team stat rows. The SDK reports `minutesPlayed` as team game-clock
+ * minutes, while advanced-stat formulas expect team player-minutes (`TmMP`).
+ */
+export function boxFromTeamStatRow(row: Record<string, unknown>): BoxTotals {
+  const box = boxFromStatRow(row)
+  return { ...box, minutes: box.minutes * 5 }
 }
 
 /** Adapter for `people.getSeasonStats`/`getCareerStats` lines (`accumulated`/`averagePerGame`). */
