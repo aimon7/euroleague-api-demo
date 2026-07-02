@@ -11,7 +11,7 @@ import {
 import type { ClubRef } from "@/lib/mappers"
 import { formatStat, playerAdvancedStats } from "@/lib/advanced"
 import type { AdvancedStat } from "@/lib/advanced"
-import { badgeVariants } from "@/components/ui/badge"
+import { badgeVariants } from "@/components/ui/badge-variants"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
