@@ -1,6 +1,5 @@
 import { useMemo } from "react"
 import type { Competition } from "euroleague-api"
-import { Bar, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from "recharts"
 
 import { usePersonSeasonStats } from "@/lib/hooks"
 import { num } from "@/lib/mappers"
@@ -16,6 +15,7 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
+  useChartPrimitives,
 } from "@/components/ui/chart"
 import type { ChartConfig } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -113,11 +113,33 @@ export function GameTrend({ competition, personCode, season }: Props) {
   }
 
   return (
+    <GameTrendChart series={series} />
+  )
+}
+
+function GameTrendChart({ series }: { series: GamePoint[] }) {
+  return (
     <ChartContainer
       config={chartConfig}
       className="aspect-auto h-[300px] w-full"
     >
-      <ComposedChart
+      <GameTrendChartBody series={series} />
+    </ChartContainer>
+  )
+}
+
+function GameTrendChartBody({ series }: { series: GamePoint[] }) {
+  const {
+    Bar,
+    CartesianGrid,
+    ComposedChart,
+    Line,
+    XAxis,
+    YAxis,
+  } = useChartPrimitives()
+
+  return (
+    <ComposedChart
         accessibilityLayer
         data={series}
         margin={{ left: 4, right: 12, top: 8 }}
@@ -185,6 +207,5 @@ export function GameTrend({ competition, personCode, season }: Props) {
           isAnimationActive={false}
         />
       </ComposedChart>
-    </ChartContainer>
   )
 }

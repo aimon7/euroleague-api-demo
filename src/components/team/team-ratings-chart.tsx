@@ -1,5 +1,4 @@
 import { useMemo } from "react"
-import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts"
 
 import type { AdvancedStat } from "@/lib/advanced"
 import {
@@ -13,6 +12,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  useChartPrimitives,
 } from "@/components/ui/chart"
 import type { ChartConfig } from "@/components/ui/chart"
 
@@ -67,47 +67,59 @@ export function TeamRatingsChart({ stats }: { stats: AdvancedStat[] }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-52 w-full"
-        >
-          <BarChart
-            accessibilityLayer
-            data={data}
-            margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="label"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-            />
-            <YAxis
-              domain={Y_DOMAIN}
-              tickLine={false}
-              axisLine={false}
-              width={36}
-              tickMargin={4}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Bar
-              dataKey="value"
-              radius={[6, 6, 0, 0]}
-              maxBarSize={96}
-              isAnimationActive={false}
-            >
-              {data.map((datum) => (
-                <Cell key={datum.key} fill={datum.fill} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ChartContainer>
+        <TeamRatingsChartBody data={data} />
       </CardContent>
     </Card>
+  )
+}
+
+function TeamRatingsChartBody({ data }: { data: RatingDatum[] }) {
+  return (
+    <ChartContainer config={chartConfig} className="aspect-auto h-52 w-full">
+      <TeamRatingsChartPlot data={data} />
+    </ChartContainer>
+  )
+}
+
+function TeamRatingsChartPlot({ data }: { data: RatingDatum[] }) {
+  const { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } =
+    useChartPrimitives()
+
+  return (
+    <BarChart
+      accessibilityLayer
+      data={data}
+      margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+    >
+      <CartesianGrid vertical={false} />
+      <XAxis
+        dataKey="label"
+        tickLine={false}
+        axisLine={false}
+        tickMargin={8}
+      />
+      <YAxis
+        domain={Y_DOMAIN}
+        tickLine={false}
+        axisLine={false}
+        width={36}
+        tickMargin={4}
+      />
+      <ChartTooltip
+        cursor={false}
+        content={<ChartTooltipContent hideLabel />}
+      />
+      <Bar
+        dataKey="value"
+        radius={[6, 6, 0, 0]}
+        maxBarSize={96}
+        isAnimationActive={false}
+      >
+        {data.map((datum) => (
+          <Cell key={datum.key} fill={datum.fill} />
+        ))}
+      </Bar>
+    </BarChart>
   )
 }
 
