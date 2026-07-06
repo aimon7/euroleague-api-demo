@@ -71,11 +71,19 @@ test("team panel: deep link opens stats panel", async ({ page }) => {
 })
 
 test("team route: does not carry landing tab in URL", async ({ page }) => {
-  await page.goto("/?competition=euroleague&season=2025&tab=standings", {
-    waitUntil: "networkidle",
-  })
+  await page.goto("/?competition=euroleague&season=2025&tab=standings")
 
-  await page.locator("tbody tr").first().getByRole("link").click()
+  await expect(page.getByRole("tab", { name: "Standings" })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  )
+
+  const teamLink = page
+    .getByRole("tabpanel", { name: "Standings" })
+    .getByRole("link")
+    .first()
+  await expect(teamLink).toBeVisible({ timeout: 15_000 })
+  await teamLink.click()
 
   await expect(page).toHaveURL(/\/team\//)
   await expect(page).not.toHaveURL(/tab=/)
