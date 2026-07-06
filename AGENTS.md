@@ -6,7 +6,7 @@ Agent-facing reference for what this project is, how it is organized, and how to
 
 `euroleague-api-demo` is a polished, fully client-side showcase SPA for the [`euroleague-api`](https://www.npmjs.com/package/euroleague-api) npm SDK — a strongly-typed TypeScript client for the public EuroLeague and EuroCup APIs. The primary audience is **SDK evaluators** reading the package README and deciding whether to adopt it.
 
-- **Live:** https://aimon7.github.io/euroleague-api-demo/
+- **Live:** [https://aimon7.github.io/euroleague-api-demo/](https://aimon7.github.io/euroleague-api-demo/)
 - **Architecture:** 100% browser-side — no backend or server runtime. The SDK calls EuroLeague APIs directly (CORS `Access-Control-Allow-Origin: *`). All data fetching is read-only (`useQuery`).
 - **Advanced stats:** Box-score-derived metrics are computed in-flight in `src/lib/advanced/` and marked as `api` vs `computed`. See [`docs/ADVANCED_STATS.md`](docs/ADVANCED_STATS.md).
 - **Routes:** `/` (landing), `/team/$clubCode`, `/player/$personCode`. `competition` (`euroleague` | `eurocup`) and `season` (start-year, e.g. `2025`) are always in URL search params.
@@ -29,7 +29,7 @@ Agent-facing reference for what this project is, how it is organized, and how to
 
 ## Repository layout
 
-```
+```text
 src/
   routes/              # file-based routes — /, /team/$clubCode, /player/$personCode
   lib/
