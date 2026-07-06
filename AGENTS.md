@@ -107,7 +107,17 @@ Use `/browser-testing-with-devtools` for any browser-facing change:
 - Check: page loads, console clean, network requests, visual correctness, accessibility tree for interactive UI
 - For `.tsx` changes: confirm behavior in the internal browser
 
-Automated gates (`typecheck`, `lint`, `test`, `build`, `test:e2e` as applicable) still run in addition to browser verification.
+After browser verification, run automated gates **before committing**:
+
+```sh
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm test:e2e   # required when routes, search params, or UI navigation changed
+pnpm build      # when build output or deploy scripts changed
+```
+
+Run independent checks **in parallel** when possible (e.g. `typecheck`, `lint`, and `test` together). Do not commit until these pass.
 
 ### 3. Review
 
