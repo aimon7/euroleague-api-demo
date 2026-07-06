@@ -9,7 +9,7 @@ import {
 
 import { personHeadshot } from "@/lib/headshot"
 import { usePersonProfile, usePersonSeasonRegistration } from "@/lib/hooks"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { PlayerPhoto } from "@/components/player/player-photo"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { QueryError } from "@/components/app/query-error"
@@ -51,7 +51,7 @@ export function PlayerHeader({ competition, personCode, season }: Props) {
   if (isPending) {
     return (
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-end">
-        <Skeleton className="size-20 rounded-full sm:size-24" />
+        <Skeleton className="h-32 w-24 rounded-lg sm:h-36 sm:w-28" />
         <div className="flex w-full flex-col gap-2">
           <Skeleton className="h-8 w-64 max-w-full" />
           <Skeleton className="h-5 w-80 max-w-full" />
@@ -91,15 +91,12 @@ export function PlayerHeader({ competition, personCode, season }: Props) {
 
   return (
     <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-end sm:text-left">
-      <Avatar className="size-20 rounded-full ring-1 ring-foreground/10 sm:size-24">
-        <AvatarImage
-          src={personHeadshot(registration.data, data)}
-          alt={displayName}
-        />
-        <AvatarFallback className="text-xl font-medium">
-          {initials(displayName)}
-        </AvatarFallback>
-      </Avatar>
+      <PlayerPhoto
+        src={personHeadshot(registration.data, data)}
+        alt={displayName}
+        size="lg"
+        fallback={<span className="text-xl font-medium">{initials(displayName)}</span>}
+      />
 
       <div className="flex flex-col gap-2">
         <h1 className="font-heading text-3xl leading-none font-semibold tracking-tight sm:text-4xl">

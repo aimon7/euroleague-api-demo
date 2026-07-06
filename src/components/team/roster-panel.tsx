@@ -4,7 +4,7 @@ import type { ClubRosterMember, Competition } from "euroleague-api"
 import { rosterMemberHeadshot } from "@/lib/headshot"
 import { splitRoster, useRoster } from "@/lib/hooks"
 import { buildPlayerSearch } from "@/lib/player-search"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { PlayerPhoto } from "@/components/player/player-photo"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -105,10 +105,12 @@ function PlayerCard({ member, competition, season, clubCode }: PlayerCardProps) 
       <Card className="h-full transition-colors hover:bg-accent/40 hover:ring-ring/40">
         <CardContent className="flex flex-col items-center gap-2 text-center">
           <div className="relative">
-            <Avatar className="size-16 rounded-full">
-              <AvatarImage src={rosterMemberHeadshot(member)} alt="" />
-              <AvatarFallback className="text-sm">{initials(person.name)}</AvatarFallback>
-            </Avatar>
+            <PlayerPhoto
+              src={rosterMemberHeadshot(member)}
+              alt=""
+              size="md"
+              fallback={<span className="text-sm">{initials(person.name)}</span>}
+            />
             {jersey !== "" ? (
               <Badge className="absolute -right-1 -bottom-1 size-6 justify-center rounded-full p-0 text-[0.7rem] tabular-nums ring-2 ring-card">
                 {jersey}

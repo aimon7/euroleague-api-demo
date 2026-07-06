@@ -4,7 +4,7 @@ import type { ClubRosterMember, Competition } from "euroleague-api"
 import { rosterMemberHeadshot } from "@/lib/headshot"
 import { splitRoster } from "@/lib/hooks"
 import { buildPlayerSearch } from "@/lib/player-search"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { PlayerPhoto } from "@/components/player/player-photo"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -63,10 +63,12 @@ export function TeamRoster({
             >
               <Card className="h-full py-0 transition-colors hover:border-ring hover:bg-accent/40">
                 <CardContent className="flex items-center gap-3 p-4">
-                  <Avatar className="size-12">
-                    <AvatarImage src={rosterMemberHeadshot(member)} alt="" />
-                    <AvatarFallback>{member.dorsal || member.person.code.slice(-2)}</AvatarFallback>
-                  </Avatar>
+                  <PlayerPhoto
+                    src={rosterMemberHeadshot(member)}
+                    alt=""
+                    size="sm"
+                    fallback={member.dorsal || member.person.code.slice(-2)}
+                  />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       {member.dorsal ? <Badge variant="secondary">#{member.dorsal}</Badge> : null}
