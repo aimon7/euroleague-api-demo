@@ -3,12 +3,13 @@ import { Link, createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useClub } from "@/lib/hooks"
 import { useAppSearch } from "@/lib/search"
 import { buildLandingSearch } from "@/lib/landing-search"
-import type { TeamSearch } from "@/lib/team-search"
 import {
   buildTeamSearch,
+  rosterSort as getRosterSort,
   teamPanel,
   teamSearchSchema,
 } from "@/lib/team-search"
+import type { RosterSort, TeamSearch } from "@/lib/team-search"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -42,6 +43,19 @@ function TeamRoute() {
           competition: prev.competition,
           season: prev.season,
           panel: value === "stats" ? "stats" : undefined,
+          rosterSort: getRosterSort(prev),
+        }),
+    })
+  }
+
+  const setRosterSort = (sort: RosterSort) => {
+    void navigate({
+      search: (prev: TeamSearch) =>
+        buildTeamSearch({
+          competition: prev.competition,
+          season: prev.season,
+          panel: prev.panel === "stats" ? "stats" : undefined,
+          rosterSort: sort,
         }),
     })
   }
@@ -74,7 +88,13 @@ function TeamRoute() {
           <TabsTrigger value="stats">Stats</TabsTrigger>
         </TabsList>
         <TabsContent value="roster">
-          <RosterPanel competition={competition} season={season} clubCode={clubCode} />
+          <RosterPanel
+            competition={competition}
+            season={season}
+            clubCode={clubCode}
+            rosterSort={getRosterSort(search)}
+            onRosterSortChange={setRosterSort}
+          />
         </TabsContent>
         <TabsContent value="stats">
           <TeamStatsPanel competition={competition} season={season} clubCode={clubCode} />

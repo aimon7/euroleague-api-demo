@@ -1,27 +1,47 @@
 import { Link } from "@tanstack/react-router"
+import { useMemo } from "react"
 import type { ClubRosterMember, Competition } from "euroleague-api"
 
 import { rosterMemberHeadshot } from "@/lib/headshot"
 import { splitRoster, useRoster } from "@/lib/hooks"
 import { buildPlayerSearch } from "@/lib/player-search"
+import { sortRosterPlayers } from "@/lib/roster-sort"
+import type { RosterSort } from "@/lib/team-search"
 import { PlayerPhoto } from "@/components/player/player-photo"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { QueryError } from "@/components/app/query-error"
 
 interface RosterPanelProps {
   competition: Competition
   season: number
   clubCode: string
+  rosterSort: RosterSort
+  onRosterSortChange: (sort: RosterSort) => void
 }
 
 const PLAYER_GRID = "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
 const SECTION_HEADING = "text-xs font-medium tracking-wide text-muted-foreground uppercase"
 
-export function RosterPanel({ competition, season, clubCode }: RosterPanelProps) {
+export function RosterPanel({
+  competition,
+  season,
+  clubCode,
+  rosterSort,
+  onRosterSortChange,
+}: RosterPanelProps) {
   const roster = useRoster(competition, season, clubCode)
+  const { players, staff } = useMemo(
+    () => (roster.data ? splitRoster(roster.data) : { players: [], staff: [] }),
+    [roster.data],
+  )
+  const sortedPlayers = useMemo(
+    () => sortRosterPlayers(players, rosterSort),
+    [players, rosterSort],
+  )
 
   if (roster.isPending) {
     return (
@@ -37,8 +57,6 @@ export function RosterPanel({ competition, season, clubCode }: RosterPanelProps)
     return <QueryError error={roster.error} onRetry={() => void roster.refetch()} />
   }
 
-  const { players, staff } = splitRoster(roster.data)
-
   if (players.length === 0 && staff.length === 0) {
     return (
       <p className="py-10 text-sm text-muted-foreground">
@@ -50,10 +68,29 @@ export function RosterPanel({ competition, season, clubCode }: RosterPanelProps)
   return (
     <div className="space-y-6">
       {players.length > 0 ? (
-        <section className="space-y-3">
-          <h2 className={SECTION_HEADING}>Players</h2>
+        <section className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className={SECTION_HEADING}>Players</h2>
+            <ToggleGroup
+              aria-label="Sort players by"
+              value={[rosterSort]}
+              onValueChange={(values) => {
+                const next = values[0]
+                if (next === "position" || next === "name" || next === "jersey") {
+                  onRosterSortChange(next)
+                }
+              }}
+              spacing={0}
+              variant="outline"
+              size="sm"
+            >
+              <ToggleGroupItem value="position">Position</ToggleGroupItem>
+              <ToggleGroupItem value="name">Name</ToggleGroupItem>
+              <ToggleGroupItem value="jersey">Jersey</ToggleGroupItem>
+            </ToggleGroup>
+          </div>
           <div className={PLAYER_GRID}>
-            {players.map((member) => (
+            {sortedPlayers.map((member) => (
               <PlayerCard
                 key={member.person.code}
                 member={member}

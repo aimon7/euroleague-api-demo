@@ -70,6 +70,38 @@ test("team panel: deep link opens stats panel", async ({ page }) => {
   )
 })
 
+test("team roster: deep link sorts players by name", async ({ page }) => {
+  await page.goto("/team/OLY?competition=euroleague&season=2025&rosterSort=name", {
+    waitUntil: "networkidle",
+  })
+
+  await expect(page.getByRole("group", { name: "Sort players by" })).toBeVisible({
+    timeout: 15_000,
+  })
+
+  const names = await page
+    .locator('section:has(h2:text("Players")) a .truncate.text-sm.font-medium')
+    .allTextContents()
+
+  expect(names.length).toBeGreaterThan(5)
+  expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)))
+})
+
+test("team roster: sort control updates URL", async ({ page }) => {
+  await page.goto("/team/OLY?competition=euroleague&season=2025", {
+    waitUntil: "networkidle",
+  })
+
+  const sortGroup = page.getByRole("group", { name: "Sort players by" })
+  await expect(sortGroup).toBeVisible({ timeout: 15_000 })
+
+  await sortGroup.getByRole("button", { name: "Name" }).click()
+  await expect(page).toHaveURL(/rosterSort=name/)
+
+  await sortGroup.getByRole("button", { name: "Position" }).click()
+  await expect(page).not.toHaveURL(/rosterSort=/)
+})
+
 test("team route: does not carry landing tab in URL", async ({ page }) => {
   await page.goto("/?competition=euroleague&season=2025&tab=standings")
 

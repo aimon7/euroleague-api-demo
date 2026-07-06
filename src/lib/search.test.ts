@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { landingSearchSchema, buildLandingSearch, landingTab } from "./landing-search"
 import { appSearchSchema, buildAppSearch } from "./search"
-import { teamSearchSchema, buildTeamSearch, teamPanel } from "./team-search"
+import { teamSearchSchema, buildTeamSearch, teamPanel, rosterSort } from "./team-search"
 
 describe("appSearchSchema", () => {
   it("defaults competition and season", () => {
@@ -108,6 +108,44 @@ describe("teamSearchSchema", () => {
       season: 2025,
     })
   })
+
+  it("accepts non-default roster sort values", () => {
+    expect(
+      teamSearchSchema.parse({
+        competition: "euroleague",
+        season: 2025,
+        rosterSort: "name",
+      }),
+    ).toEqual({
+      competition: "euroleague",
+      season: 2025,
+      rosterSort: "name",
+    })
+  })
+
+  it("strips default and invalid roster sort values", () => {
+    expect(
+      teamSearchSchema.parse({
+        competition: "euroleague",
+        season: 2025,
+        rosterSort: "position",
+      }),
+    ).toEqual({
+      competition: "euroleague",
+      season: 2025,
+    })
+
+    expect(
+      teamSearchSchema.parse({
+        competition: "euroleague",
+        season: 2025,
+        rosterSort: "invalid",
+      }),
+    ).toEqual({
+      competition: "euroleague",
+      season: 2025,
+    })
+  })
 })
 
 describe("buildAppSearch", () => {
@@ -155,6 +193,23 @@ describe("buildTeamSearch", () => {
       panel: "stats",
     })
   })
+
+  it("omits default roster sort from the result", () => {
+    expect(buildTeamSearch({ competition: "euroleague", season: 2025, rosterSort: "position" })).toEqual({
+      competition: "euroleague",
+      season: 2025,
+    })
+  })
+
+  it("keeps non-default roster sort", () => {
+    expect(
+      buildTeamSearch({ competition: "euroleague", season: 2025, rosterSort: "jersey" }),
+    ).toEqual({
+      competition: "euroleague",
+      season: 2025,
+      rosterSort: "jersey",
+    })
+  })
 })
 
 describe("landingTab", () => {
@@ -168,5 +223,13 @@ describe("teamPanel", () => {
   it("defaults to roster", () => {
     expect(teamPanel({})).toBe("roster")
     expect(teamPanel({ panel: "stats" })).toBe("stats")
+  })
+})
+
+describe("rosterSort", () => {
+  it("defaults to position", () => {
+    expect(rosterSort({})).toBe("position")
+    expect(rosterSort({ rosterSort: "name" })).toBe("name")
+    expect(rosterSort({ rosterSort: "jersey" })).toBe("jersey")
   })
 })
