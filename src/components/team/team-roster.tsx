@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router"
 import type { ClubRosterMember, Competition } from "euroleague-api"
 
 import { splitRoster } from "@/lib/hooks"
+import { buildPlayerSearch } from "@/lib/player-search"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -12,6 +13,7 @@ import { QueryError } from "@/components/app/query-error"
 interface Props {
   competition: Competition
   season: number
+  clubCode: string
   members: ClubRosterMember[] | undefined
   isPending: boolean
   isError: boolean
@@ -22,6 +24,7 @@ interface Props {
 export function TeamRoster({
   competition,
   season,
+  clubCode,
   members,
   isPending,
   isError,
@@ -54,7 +57,7 @@ export function TeamRoster({
               key={member.person.code}
               to="/player/$personCode"
               params={{ personCode: member.person.code }}
-              search={{ competition, season }}
+              search={buildPlayerSearch({ competition, season, club: clubCode })}
               className="rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
             >
               <Card className="h-full py-0 transition-colors hover:border-ring hover:bg-accent/40">

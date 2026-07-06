@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router"
 import type { ClubRosterMember, Competition } from "euroleague-api"
 
 import { splitRoster, useRoster } from "@/lib/hooks"
+import { buildPlayerSearch } from "@/lib/player-search"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -57,6 +58,7 @@ export function RosterPanel({ competition, season, clubCode }: RosterPanelProps)
                 member={member}
                 competition={competition}
                 season={season}
+                clubCode={clubCode}
               />
             ))}
           </div>
@@ -84,9 +86,10 @@ interface PlayerCardProps {
   member: ClubRosterMember
   competition: Competition
   season: number
+  clubCode: string
 }
 
-function PlayerCard({ member, competition, season }: PlayerCardProps) {
+function PlayerCard({ member, competition, season, clubCode }: PlayerCardProps) {
   const { person, dorsal, positionName } = member
   const position = positionName ?? ""
   const jersey = dorsal ?? ""
@@ -95,7 +98,7 @@ function PlayerCard({ member, competition, season }: PlayerCardProps) {
     <Link
       to="/player/$personCode"
       params={{ personCode: person.code }}
-      search={{ competition, season }}
+      search={buildPlayerSearch({ competition, season, club: clubCode })}
       className="rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
     >
       <Card className="h-full transition-colors hover:bg-accent/40 hover:ring-ring/40">

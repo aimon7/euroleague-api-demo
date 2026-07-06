@@ -3,8 +3,9 @@ import type { ReactNode } from "react"
 import { Link, createFileRoute } from "@tanstack/react-router"
 
 import { buildLandingSearch } from "@/lib/landing-search"
-import { appSearchSchema, useAppSearch } from "@/lib/search"
-import { usePersonProfile } from "@/lib/hooks"
+import { playerSearchSchema } from "@/lib/player-search"
+import { buildTeamSearch } from "@/lib/team-search"
+import { useClub, usePersonProfile, usePersonSeasonRegistration } from "@/lib/hooks"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -26,7 +27,7 @@ const GameTrend = lazy(() =>
 )
 
 export const Route = createFileRoute("/player/$personCode")({
-  validateSearch: appSearchSchema,
+  validateSearch: playerSearchSchema,
   component: PlayerRoute,
 })
 
@@ -54,8 +55,14 @@ function Section({
 
 function PlayerRoute() {
   const { personCode } = Route.useParams()
-  const { competition, season } = useAppSearch()
+  const { competition, season, club: clubFromSearch } = Route.useSearch()
   const profile = usePersonProfile(competition, personCode)
+  const registration = usePersonSeasonRegistration(competition, personCode, season, {
+    enabled: clubFromSearch == null,
+  })
+  const clubCode = clubFromSearch ?? registration.data?.club.code
+  const club = useClub(competition, season, clubCode ?? "")
+  const clubName = club.data?.name ?? registration.data?.club.name ?? clubCode
   const name = profile.data ? personDisplayName(profile.data) : "Player"
 
   return (
@@ -74,6 +81,31 @@ function PlayerRoute() {
               Home
             </BreadcrumbLink>
           </BreadcrumbItem>
+          {clubCode ? (
+            <>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  render={
+                    <Link
+                      to="/team/$clubCode"
+                      params={{ clubCode }}
+                      search={buildTeamSearch({ competition, season })}
+                    />
+                  }
+                >
+                  {clubName}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+            </>
+          ) : registration.isPending ? (
+            <>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <Skeleton className="h-4 w-28" />
+              </BreadcrumbItem>
+            </>
+          ) : null}
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <BreadcrumbPage>{name}</BreadcrumbPage>

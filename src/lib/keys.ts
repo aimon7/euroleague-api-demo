@@ -32,6 +32,8 @@ export const keys = {
 
   personProfile: (c: Competition, personCode: string) =>
     [...keys.root(c), "person", personCode, "profile"] as const,
+  personSeasonRegistration: (c: Competition, personCode: string, season: number) =>
+    [...keys.root(c), "person", personCode, "season-registration", season] as const,
   personSeasonStats: (
     c: Competition,
     personCode: string,

@@ -5,6 +5,7 @@ import type {
   Competition,
   PeoplePhaseType,
   PersonProfile,
+  PersonRegistration,
   PersonStats,
   PlayerStat,
   Round,
@@ -157,6 +158,21 @@ export function usePersonProfile(competition: Competition, personCode: string) {
       getClient(competition).people.getProfile({ personCode }),
     staleTime: DAY,
     enabled: personCode.length > 0,
+  })
+}
+
+export function usePersonSeasonRegistration(
+  competition: Competition,
+  personCode: string,
+  season: number,
+  options?: { enabled?: boolean },
+) {
+  return useQuery({
+    queryKey: keys.personSeasonRegistration(competition, personCode, season),
+    queryFn: (): Promise<PersonRegistration> =>
+      getClient(competition).people.getSeasonRegistration({ personCode, season }),
+    staleTime: DAY,
+    enabled: (options?.enabled ?? true) && personCode.length > 0,
   })
 }
 
