@@ -7,7 +7,8 @@ import {
   TShirtIcon,
 } from "@phosphor-icons/react"
 
-import { usePersonProfile } from "@/lib/hooks"
+import { personHeadshot } from "@/lib/headshot"
+import { usePersonProfile, usePersonSeasonRegistration } from "@/lib/hooks"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -23,6 +24,7 @@ import {
 interface Props {
   competition: Competition
   personCode: string
+  season: number
 }
 
 interface HeaderBadge {
@@ -39,11 +41,12 @@ function initials(name: string): string {
   return (first + last).toUpperCase()
 }
 
-export function PlayerHeader({ competition, personCode }: Props) {
+export function PlayerHeader({ competition, personCode, season }: Props) {
   const { data, isPending, isError, error, refetch } = usePersonProfile(
     competition,
     personCode
   )
+  const registration = usePersonSeasonRegistration(competition, personCode, season)
 
   if (isPending) {
     return (
@@ -90,7 +93,7 @@ export function PlayerHeader({ competition, personCode }: Props) {
     <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-end sm:text-left">
       <Avatar className="size-20 rounded-full ring-1 ring-foreground/10 sm:size-24">
         <AvatarImage
-          src={data.images?.headshot ?? undefined}
+          src={personHeadshot(registration.data, data)}
           alt={displayName}
         />
         <AvatarFallback className="text-xl font-medium">

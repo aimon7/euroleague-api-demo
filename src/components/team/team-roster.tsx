@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import type { ClubRosterMember, Competition } from "euroleague-api"
 
+import { rosterMemberHeadshot } from "@/lib/headshot"
 import { splitRoster } from "@/lib/hooks"
 import { buildPlayerSearch } from "@/lib/player-search"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -63,7 +64,7 @@ export function TeamRoster({
               <Card className="h-full py-0 transition-colors hover:border-ring hover:bg-accent/40">
                 <CardContent className="flex items-center gap-3 p-4">
                   <Avatar className="size-12">
-                    <AvatarImage src={member.person.images?.headshot ?? undefined} alt="" />
+                    <AvatarImage src={rosterMemberHeadshot(member)} alt="" />
                     <AvatarFallback>{member.dorsal || member.person.code.slice(-2)}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">

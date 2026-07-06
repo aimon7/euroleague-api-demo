@@ -113,7 +113,11 @@ function PlayerRoute() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <PlayerHeader competition={competition} personCode={personCode} />
+      <PlayerHeader
+        competition={competition}
+        personCode={personCode}
+        season={season}
+      />
 
       <Section
         title="Season averages"

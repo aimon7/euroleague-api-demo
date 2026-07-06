@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import type { ClubRosterMember, Competition } from "euroleague-api"
 
+import { rosterMemberHeadshot } from "@/lib/headshot"
 import { splitRoster, useRoster } from "@/lib/hooks"
 import { buildPlayerSearch } from "@/lib/player-search"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -105,7 +106,7 @@ function PlayerCard({ member, competition, season, clubCode }: PlayerCardProps) 
         <CardContent className="flex flex-col items-center gap-2 text-center">
           <div className="relative">
             <Avatar className="size-16 rounded-full">
-              <AvatarImage src={person.images?.headshot ?? undefined} alt="" />
+              <AvatarImage src={rosterMemberHeadshot(member)} alt="" />
               <AvatarFallback className="text-sm">{initials(person.name)}</AvatarFallback>
             </Avatar>
             {jersey !== "" ? (
