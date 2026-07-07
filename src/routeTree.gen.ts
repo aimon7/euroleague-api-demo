@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as DocsRouteImport } from './routes/docs'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TeamClubCodeRouteImport } from './routes/team.$clubCode'
 import { Route as PlayerPersonCodeRouteImport } from './routes/player.$personCode'
 
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,36 +37,47 @@ const PlayerPersonCodeRoute = PlayerPersonCodeRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/docs': typeof DocsRoute
   '/player/$personCode': typeof PlayerPersonCodeRoute
   '/team/$clubCode': typeof TeamClubCodeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/docs': typeof DocsRoute
   '/player/$personCode': typeof PlayerPersonCodeRoute
   '/team/$clubCode': typeof TeamClubCodeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/docs': typeof DocsRoute
   '/player/$personCode': typeof PlayerPersonCodeRoute
   '/team/$clubCode': typeof TeamClubCodeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/player/$personCode' | '/team/$clubCode'
+  fullPaths: '/' | '/docs' | '/player/$personCode' | '/team/$clubCode'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/player/$personCode' | '/team/$clubCode'
-  id: '__root__' | '/' | '/player/$personCode' | '/team/$clubCode'
+  to: '/' | '/docs' | '/player/$personCode' | '/team/$clubCode'
+  id: '__root__' | '/' | '/docs' | '/player/$personCode' | '/team/$clubCode'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DocsRoute: typeof DocsRoute
   PlayerPersonCodeRoute: typeof PlayerPersonCodeRoute
   TeamClubCodeRoute: typeof TeamClubCodeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DocsRoute: DocsRoute,
   PlayerPersonCodeRoute: PlayerPersonCodeRoute,
   TeamClubCodeRoute: TeamClubCodeRoute,
 }
