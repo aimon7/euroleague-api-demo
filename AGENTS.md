@@ -88,6 +88,9 @@ Start here when navigating the codebase:
 | [`src/lib/mappers.ts`](src/lib/mappers.ts) | SDK row → view-shape mappers (`select`) |
 | [`src/lib/advanced/`](src/lib/advanced/) | Computed basketball metrics (unit-tested) |
 | [`src/router.tsx`](src/router.tsx) | QueryClient defaults, router setup |
+| [`src/routes/docs.tsx`](src/routes/docs.tsx) | SDK docs route (guide, reference, playground) |
+| [`src/lib/docs/`](src/lib/docs/) | Hand-curated SDK method catalog + invoke helpers |
+| [`src/lib/docs-search.ts`](src/lib/docs-search.ts) | `/docs` URL search schema |
 
 ## Commands
 
@@ -99,6 +102,8 @@ pnpm lint
 pnpm test         # Vitest unit tests
 pnpm build        # SPA → dist/client (+ index.html / 404.html / .nojekyll)
 pnpm test:e2e     # Playwright smoke tests
+pnpm gen:sdk-manifest  # regenerate scripts/sdk-method-manifest.json from ../euroleague-api
+pnpm check:catalog     # vitest drift check — catalog vs SDK manifest
 ```
 
 ## References
