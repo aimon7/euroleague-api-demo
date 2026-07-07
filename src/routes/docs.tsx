@@ -4,7 +4,7 @@ import { GuidePanel } from "@/components/docs/guide-panel"
 import { PlaygroundPanel } from "@/components/docs/playground-panel"
 import { ReferencePanel } from "@/components/docs/reference-panel"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import type { DocsSearch, DocsTab } from "@/lib/docs-search"
+import type { DocsSearch } from "@/lib/docs-search"
 import {
   buildDocsSearch,
   docsSearchSchema,

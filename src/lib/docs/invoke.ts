@@ -1,7 +1,9 @@
 import type { EuroleagueClient } from "euroleague-api"
 
 import { METHOD_CATALOG } from "./catalog"
-import type { MethodDef, ResourceName } from "./types"
+import { defaultParamValues } from "./defaults"
+import type { MethodDef, PlaygroundContext, ResourceName } from "./types"
+import { methodKey } from "./types"
 
 export function getMethodDef(
   resource: ResourceName,
@@ -14,13 +16,13 @@ export function getMethodDef(
 
 export function parseParamValues(
   fields: MethodDef["params"],
-  raw: Record<string, string>,
+  raw: Partial<Record<string, string>>,
 ): Record<string, unknown> {
   const params: Record<string, unknown> = {}
 
   for (const field of fields) {
     const value = raw[field.name]
-    if (value === "") {
+    if (value === undefined || value === "") {
       if (field.required) {
         throw new Error(`${field.label} is required.`)
       }
@@ -45,6 +47,38 @@ export function parseParamValues(
   }
 
   return params
+}
+
+function mergeParamFormValues(
+  fields: MethodDef["params"],
+  raw: Partial<Record<string, string>>,
+  ctx: PlaygroundContext,
+): Record<string, string> {
+  const defaults = defaultParamValues(fields, ctx)
+  const merged: Record<string, string> = {}
+
+  for (const field of fields) {
+    const rawValue = raw[field.name]
+    if (rawValue !== undefined && rawValue !== "") {
+      merged[field.name] = rawValue
+      continue
+    }
+
+    const fallback = defaults[field.name]
+    if (fallback !== undefined) {
+      merged[field.name] = String(fallback)
+    }
+  }
+
+  return merged
+}
+
+export function buildInvokeParams(
+  fields: MethodDef["params"],
+  raw: Partial<Record<string, string>>,
+  ctx: PlaygroundContext,
+): Record<string, unknown> {
+  return parseParamValues(fields, mergeParamFormValues(fields, raw, ctx))
 }
 
 export async function invokeMethod(

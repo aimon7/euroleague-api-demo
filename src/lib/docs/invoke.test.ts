@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import {
+  buildInvokeParams,
   formatCodeSnippet,
   parseParamValues,
   serializeResponse,
@@ -36,6 +37,31 @@ describe("parseParamValues", () => {
         { season: "" },
       ),
     ).toThrow(/Season is required/)
+  })
+})
+
+describe("buildInvokeParams", () => {
+  it("fills missing fields from playground defaults", () => {
+    const params = buildInvokeParams(
+      [
+        {
+          name: "season",
+          label: "Season",
+          kind: "number",
+          required: true,
+        },
+        {
+          name: "gameCode",
+          label: "Game code",
+          kind: "number",
+          required: true,
+        },
+      ],
+      {},
+      { competition: "euroleague", season: 2025 },
+    )
+
+    expect(params).toEqual({ season: 2025, gameCode: 1 })
   })
 })
 

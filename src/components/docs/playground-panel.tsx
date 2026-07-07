@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
-import { useMutation } from "@tanstack/react-query"
+import { useMemo, useState } from "react"
 
 import { QueryError } from "@/components/app/query-error"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -24,9 +23,9 @@ import { ResponseViewer } from "@/components/docs/response-viewer"
 import { isResourceName } from "@/lib/docs-search"
 import { defaultValuesForMethod } from "@/lib/docs/defaults"
 import {
+  buildInvokeParams,
   formatCodeSnippet,
   invokeMethod,
-  parseParamValues,
 } from "@/lib/docs/invoke"
 import { METHOD_CATALOG } from "@/lib/docs/catalog"
 import type { MethodDef, ResourceName } from "@/lib/docs/types"
@@ -65,40 +64,57 @@ function resolveMethodDef(
   return methods.find((entry) => entry.method === methodProp) ?? methods[0]
 }
 
-export function PlaygroundPanel({
+type PlaygroundFormProps = {
+  competition: AppSearch["competition"]
+  season: number
+  resource: ResourceName
+  methodDef: MethodDef
+  methods: MethodDef[]
+  onSelectionChange: (resource: ResourceName, method: string) => void
+}
+
+function PlaygroundForm({
   competition,
   season,
-  resource: resourceProp,
-  method: methodProp,
+  resource,
+  methodDef,
+  methods,
   onSelectionChange,
-}: PlaygroundPanelProps) {
-  const resource = resolveResource(resourceProp)
-  const methodDef = resolveMethodDef(resource, methodProp)
-  const methods = useMemo(
-    () => METHOD_CATALOG.filter((entry) => entry.resource === resource),
-    [resource],
+}: PlaygroundFormProps) {
+  const playgroundCtx = useMemo(
+    () => ({ competition, season }),
+    [competition, season],
+  )
+  const defaultFormValues = useMemo(
+    () => toFormValues(defaultValuesForMethod(methodDef, playgroundCtx)),
+    [methodDef, playgroundCtx],
+  )
+  const [formValues, setFormValues] = useState(defaultFormValues)
+  const [isRunning, setIsRunning] = useState(false)
+  const [runError, setRunError] = useState<unknown>(null)
+  const [response, setResponse] = useState<unknown>(undefined)
+
+  const parsedParams = useMemo(
+    () => buildInvokeParams(methodDef.params, formValues, playgroundCtx),
+    [methodDef.params, formValues, playgroundCtx],
   )
 
-  const [formValues, setFormValues] = useState<Record<string, string>>({})
-
-  useEffect(() => {
-    const defaults = defaultValuesForMethod(methodDef, { competition, season })
-    setFormValues(toFormValues(defaults))
-  }, [methodDef, competition, season])
-
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const params = parseParamValues(methodDef.params, formValues)
+  const runPlayground = async () => {
+    setIsRunning(true)
+    setRunError(null)
+    try {
+      const params = buildInvokeParams(methodDef.params, formValues, playgroundCtx)
       const client = getClient(competition)
-      return invokeMethod(client, resource, methodDef.method, params)
-    },
-  })
+      const result = await invokeMethod(client, resource, methodDef.method, params)
+      setResponse(result)
+    } catch (error) {
+      setRunError(error)
+    } finally {
+      setIsRunning(false)
+    }
+  }
 
-  const snippet = formatCodeSnippet(
-    resource,
-    methodDef.method,
-    parseParamValues(methodDef.params, formValues),
-  )
+  const snippet = formatCodeSnippet(resource, methodDef.method, parsedParams)
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
@@ -191,29 +207,56 @@ export function PlaygroundPanel({
             />
             <Button
               type="button"
-              onClick={() => mutation.mutate()}
-              disabled={mutation.isPending}
+              onClick={() => void runPlayground()}
+              disabled={isRunning}
             >
-              {mutation.isPending ? "Running…" : "Run"}
+              {isRunning ? "Running…" : "Run"}
             </Button>
-            {mutation.error ? (
+            {runError ? (
               <QueryError
-                error={mutation.error}
-                onRetry={() => mutation.mutate()}
+                error={runError}
+                onRetry={() => void runPlayground()}
               />
             ) : null}
           </CardContent>
         </Card>
 
-        {mutation.data !== undefined ? (
+        {response !== undefined ? (
           <Card>
             <CardContent className="space-y-6 pt-6">
               <CodeSnippet code={snippet} />
-              <ResponseViewer value={mutation.data} />
+              <ResponseViewer value={response} />
             </CardContent>
           </Card>
         ) : null}
       </div>
     </div>
+  )
+}
+
+export function PlaygroundPanel({
+  competition,
+  season,
+  resource: resourceProp,
+  method: methodProp,
+  onSelectionChange,
+}: PlaygroundPanelProps) {
+  const resource = resolveResource(resourceProp)
+  const methodDef = resolveMethodDef(resource, methodProp)
+  const methods = useMemo(
+    () => METHOD_CATALOG.filter((entry) => entry.resource === resource),
+    [resource],
+  )
+
+  return (
+    <PlaygroundForm
+      key={`${resource}.${methodDef.method}`}
+      competition={competition}
+      season={season}
+      resource={resource}
+      methodDef={methodDef}
+      methods={methods}
+      onSelectionChange={onSelectionChange}
+    />
   )
 }
