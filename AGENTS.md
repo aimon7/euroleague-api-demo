@@ -1,60 +1,95 @@
 # euroleague-api-demo — Agent Guide
 
-Agent-facing reference for what this project is, how it is organized, and how to finish work correctly.
+Agent-facing workflow and entry points for this repo. Architecture, routes, stack, and SDK surface are in [`docs/SPEC.md`](docs/SPEC.md) — reach for that **legwork** before guessing layout or behaviour.
 
-## Project summary
+## Finish workflow
 
-`euroleague-api-demo` is a polished, fully client-side showcase SPA for the [`euroleague-api`](https://www.npmjs.com/package/euroleague-api) npm SDK — a strongly-typed TypeScript client for the public EuroLeague and EuroCup APIs. The primary audience is **SDK evaluators** reading the package README and deciding whether to adopt it.
+Four phases, in order. Declare work complete only when **every** phase criterion below is met.
 
-- **Live:** [https://aimon7.github.io/euroleague-api-demo/](https://aimon7.github.io/euroleague-api-demo/)
-- **Architecture:** 100% browser-side — no backend or server runtime. The SDK calls EuroLeague APIs directly (CORS `Access-Control-Allow-Origin: *`). All data fetching is read-only (`useQuery`).
-- **Advanced stats:** Box-score-derived metrics are computed in-flight in `src/lib/advanced/` and marked as `api` vs `computed`. See [`docs/ADVANCED_STATS.md`](docs/ADVANCED_STATS.md).
-- **Routes:** `/` (landing), `/team/$clubCode`, `/player/$personCode`. `competition` (`euroleague` | `eurocup`) and `season` (start-year, e.g. `2025`) are always in URL search params.
+### 1. Slice
 
-## Stack
+Implement in thin vertical **slices** — each leaves the app working and testable. Independent slices: build and verify in **tight** parallel.
 
-| Layer | Choice |
+**Always apply:**
+
+- `/incremental-implementation` — slice → test → verify → commit → next slice
+- `/frontend-ui-engineering` — any user-facing UI
+- `/git-workflow-and-versioning` — atomic commits, trunk-friendly history
+
+**React work — apply what matches the change:**
+
+| Skill | Reach when |
 | --- | --- |
-| Framework | TanStack Start (SPA mode, no server runtime) |
-| Routing | TanStack Router (file-based, `src/routes/`) |
-| Data | TanStack Query + `@tanstack/react-router-ssr-query` |
-| Tables | TanStack Table (`@tanstack/react-table`) |
-| UI | React 19, Tailwind CSS v4, shadcn/ui (Base UI), Recharts |
-| Build | Vite 8, pnpm |
-| SDK | `euroleague-api` |
-| Tests | Vitest (unit), Playwright (e2e) |
-| Runtime | Node >= 20 |
+| `/react-2026` | Stack choices, React 19 APIs, Vite + TanStack patterns |
+| `/react-data-fetching` | TanStack Query hooks, caching, parallel fetches, waterfalls |
+| `/react-render-optimization` | Lists, charts, filters, derived state, memoization |
+| `/react-composition-2026` | Component API design, compound components, prop sprawl |
+| `/vercel-react-best-practices` | Performance review (waterfalls, bundle size, re-renders) |
+| `/vercel-react-view-transitions` | Route or state animations |
 
-**Not in scope:** SSR, server runtime, backend proxy. `/react-selective-hydration` applies only if SSR/streaming is introduced later — not applicable to the current SPA.
+**Done when:** every slice is working; the skills above are applied to the changed surface.
 
-## Repository layout
+### 2. Gate
 
-```text
-src/
-  routes/              # file-based routes — /, /team/$clubCode, /player/$personCode
-  lib/
-    euroleague.ts      # SDK client factory (new EuroleagueClient({ competition }))
-    keys.ts            # query-key factory for TanStack Query
-    hooks.ts           # typed useQuery wrappers per resource
-    mappers.ts         # SDK row/entity → view-shape mappers (used in select)
-    advanced/          # advanced-stat formulas (pure functions, unit-tested)
-  components/
-    ui/                # shadcn/ui (Base UI) primitives
-    <feature>/         # landing, team, player, app shell, stats, charts
-docs/                  # SPEC.md, ADVANCED_STATS.md
-e2e/                   # Playwright smoke tests
-scripts/               # build helpers (postbuild SPA-shell copy + .nojekyll)
-.github/workflows/     # GitHub Actions deploy to GitHub Pages
+**Browser legwork** for any `.tsx` change or routing/search-param behaviour — `/browser-testing-with-devtools`:
+
+- Dev server: `pnpm dev` → `http://localhost:3000`
+- Chrome DevTools MCP: [`.cursor/mcp.json`](.cursor/mcp.json)
+- Confirm: page loads, console clean, network requests, visual correctness, accessibility tree for interactive UI
+
+Then run automated **gates** before committing. Run independent gates in **tight** parallel (`typecheck`, `lint`, `test` together):
+
+```sh
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm test:e2e   # routes, search params, or UI navigation changed
+pnpm build      # build output or deploy scripts changed
 ```
 
-High-signal files:
+**Done when:** browser checks pass for the changed surface; every gate required for this change is green.
 
-- [`src/lib/euroleague.ts`](src/lib/euroleague.ts) — SDK client factory
-- [`src/lib/hooks.ts`](src/lib/hooks.ts) — typed `useQuery` wrappers
-- [`src/lib/advanced/`](src/lib/advanced/) — computed basketball metrics (unit-tested)
-- [`src/router.tsx`](src/router.tsx) — QueryClient defaults, router setup
+### 3. Review
 
-## Commands and verification gates
+1. Launch the **code-reviewer** subagent (`subagent_type: code-reviewer`) on the branch/diff
+2. Apply `/code-review-and-quality` — five axes (correctness, readability, architecture, security, performance)
+3. Apply `/code-simplification` on recently changed code — separate refactor commits from feature commits
+
+**Done when:** Critical and Required findings are addressed.
+
+### 4. React health (always last)
+
+```sh
+npx -y react-doctor@latest . --verbose
+```
+
+Fix errors first, then warnings in changed files. Re-run until the score is acceptable or remaining issues are documented.
+
+**Done when:** react-doctor errors are fixed; changed-file warnings are fixed or documented.
+
+---
+
+## Project context
+
+Browser-only showcase SPA for the [`euroleague-api`](https://www.npmjs.com/package/euroleague-api) SDK — audience is SDK evaluators. No backend, no SSR, no proxy; SDK calls EuroLeague APIs directly (CORS). Data fetching is read-only (`useQuery`). Advanced stats are computed client-side in `src/lib/advanced/` and labelled `api` vs `computed` — see [`docs/ADVANCED_STATS.md`](docs/ADVANCED_STATS.md).
+
+- **Live:** [https://aimon7.github.io/euroleague-api-demo/](https://aimon7.github.io/euroleague-api-demo/)
+- **Deploy:** push to `main` → [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) publishes `dist/client` to GitHub Pages (`base`: `/euroleague-api-demo/`)
+
+## Entry points
+
+Start here when navigating the codebase:
+
+| File | Role |
+| --- | --- |
+| [`src/lib/euroleague.ts`](src/lib/euroleague.ts) | SDK client factory |
+| [`src/lib/hooks.ts`](src/lib/hooks.ts) | Typed `useQuery` wrappers |
+| [`src/lib/keys.ts`](src/lib/keys.ts) | Query-key factory |
+| [`src/lib/mappers.ts`](src/lib/mappers.ts) | SDK row → view-shape mappers (`select`) |
+| [`src/lib/advanced/`](src/lib/advanced/) | Computed basketball metrics (unit-tested) |
+| [`src/router.tsx`](src/router.tsx) | QueryClient defaults, router setup |
+
+## Commands
 
 ```sh
 pnpm install
@@ -62,89 +97,14 @@ pnpm dev          # http://localhost:3000
 pnpm typecheck
 pnpm lint
 pnpm test         # Vitest unit tests
-pnpm build        # SPA build → dist/client (+ index.html / 404.html / .nojekyll)
-pnpm test:e2e     # Playwright smoke tests — run when UI/routing behavior changed
+pnpm build        # SPA → dist/client (+ index.html / 404.html / .nojekyll)
+pnpm test:e2e     # Playwright smoke tests
 ```
 
-Run independent checks **in parallel** when possible (e.g. `typecheck`, `lint`, and `test` together).
-
-Deployment: pushing to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), publishing `dist/client` to GitHub Pages. Production Vite `base` is `/euroleague-api-demo/`.
-
----
-
-## When a task or plan is finished
-
-Follow these four phases in order before declaring work complete.
-
-### 1. Build
-
-Implement in **thin vertical slices** — each slice leaves the app working and testable. Where slices are independent (e.g. separate components or test files), build and verify them **in parallel**.
-
-**Always apply these skills:**
-
-- `/incremental-implementation` — slice → test → verify → commit → next slice
-- `/frontend-ui-engineering` — for any user-facing UI work
-- `/git-workflow-and-versioning` — atomic commits, descriptive messages, trunk-friendly history
-
-**For React work, apply what is relevant each time (not all blindly):**
-
-| Skill | When to use in this repo |
-| --- | --- |
-| `/react-2026` | Stack choices, React 19 APIs, Vite + TanStack patterns |
-| `/react-data-fetching` | TanStack Query hooks, caching, parallel fetches, avoiding waterfalls |
-| `/react-render-optimization` | Lists, charts, filters, derived state, memoization |
-| `/react-composition-2026` | Component API design, compound components, prop sprawl |
-| `/vercel-react-best-practices` | Performance review (waterfalls, bundle size, re-renders) |
-| `/vercel-react-view-transitions` | Route/state animations (if adding transitions) |
-| `/react-selective-hydration` | **Only if** SSR/streaming is added — not applicable to current SPA |
-
-### 2. Verify
-
-Use `/browser-testing-with-devtools` for any browser-facing change:
-
-- Dev server: `pnpm dev` → `http://localhost:3000`
-- Chrome DevTools MCP is configured in [`.cursor/mcp.json`](.cursor/mcp.json)
-- Check: page loads, console clean, network requests, visual correctness, accessibility tree for interactive UI
-- For `.tsx` changes: confirm behavior in the internal browser
-
-After browser verification, run automated gates **before committing**:
-
-```sh
-pnpm typecheck
-pnpm lint
-pnpm test
-pnpm test:e2e   # required when routes, search params, or UI navigation changed
-pnpm build      # when build output or deploy scripts changed
-```
-
-Run independent checks **in parallel** when possible (e.g. `typecheck`, `lint`, and `test` together). Do not commit until these pass.
-
-### 3. Review
-
-Before marking work done:
-
-1. Launch the **code-reviewer** subagent (`subagent_type: code-reviewer`) on the branch/diff
-2. Apply `/code-review-and-quality` — five-axis review (correctness, readability, architecture, security, performance)
-3. Apply `/code-simplification` on recently changed code — simplify without changing behavior; separate refactor commits from feature commits
-
-Address Critical and Required findings before declaring complete.
-
-### 4. React health check (always last)
-
-Run react-doctor on the project root:
-
-```sh
-npx -y react-doctor@latest . --verbose
-```
-
-Fix errors first, then warnings that relate to changed files. Re-run until the score is acceptable or remaining issues are documented.
-
----
-
-## Key references
+## References
 
 - [`README.md`](README.md) — quick human overview
-- [`docs/SPEC.md`](docs/SPEC.md) — full project spec (routes, SDK surface, architecture)
+- [`docs/SPEC.md`](docs/SPEC.md) — routes, project structure, SDK usage patterns
 - [`docs/ADVANCED_STATS.md`](docs/ADVANCED_STATS.md) — formula definitions and metric tiers
 
 Unofficial; not affiliated with EuroLeague Basketball.
