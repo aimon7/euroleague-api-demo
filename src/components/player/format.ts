@@ -13,18 +13,23 @@ export function personDisplayName(profile: PersonProfile): string {
   return profile.name
 }
 
-/** Whole years between `birthDate` and now, or null when the date is unusable. */
+/** 1 October of the season start year — typical EuroLeague tip-off. */
+export function seasonTipOffDate(season: number): Date {
+  return new Date(season, 9, 1)
+}
+
+/** Whole years between `birthDate` and `asOf`, or null when the date is unusable. */
 export function ageFromBirthDate(
   birthDate: string | null | undefined,
-  now: Date = new Date(),
+  asOf: Date = new Date(),
 ): number | null {
   if (!birthDate) return null
   const born = new Date(birthDate)
   if (Number.isNaN(born.getTime())) return null
 
-  let age = now.getFullYear() - born.getFullYear()
-  const monthDelta = now.getMonth() - born.getMonth()
-  if (monthDelta < 0 || (monthDelta === 0 && now.getDate() < born.getDate())) {
+  let age = asOf.getFullYear() - born.getFullYear()
+  const monthDelta = asOf.getMonth() - born.getMonth()
+  if (monthDelta < 0 || (monthDelta === 0 && asOf.getDate() < born.getDate())) {
     age -= 1
   }
   return age >= 0 && age < 130 ? age : null

@@ -16,6 +16,7 @@ import { QueryError } from "@/components/app/query-error"
 import {
   ageFromBirthDate,
   formatBirthDate,
+  seasonTipOffDate,
   formatHeight,
   formatWeight,
   personDisplayName,
@@ -66,7 +67,7 @@ export function PlayerHeader({ competition, personCode, season }: Props) {
 
   const displayName = personDisplayName(data)
   const country = data.country?.name ?? data.birthCountry?.name ?? null
-  const age = ageFromBirthDate(data.birthDate)
+  const age = ageFromBirthDate(data.birthDate, seasonTipOffDate(season))
   const height = formatHeight(data.height)
   const weight = formatWeight(data.weight)
   const birthDate = formatBirthDate(data.birthDate)
@@ -80,7 +81,7 @@ export function PlayerHeader({ competition, personCode, season }: Props) {
   }
   if (age != null) {
     const born = birthDate != null ? ` · born ${birthDate}` : ""
-    badges.push({ key: "age", icon: CakeIcon, label: `${age} yrs${born}` })
+    badges.push({ key: "age", icon: CakeIcon, label: `${age} yrs (season)${born}` })
   }
   if (height != null) {
     badges.push({ key: "height", icon: RulerIcon, label: height })
