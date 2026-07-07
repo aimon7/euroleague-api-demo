@@ -20,6 +20,16 @@ export const RESOURCE_NAMES = [
 
 export type ResourceName = (typeof RESOURCE_NAMES)[number]
 
+/** First entry in `RESOURCE_NAMES` — default when docs tabs have no `resource` in the URL. */
+export const DEFAULT_DOCS_RESOURCE = RESOURCE_NAMES[0]
+
+export function resolveDocsResource(resource?: ResourceName): ResourceName {
+  if (resource && (RESOURCE_NAMES as readonly string[]).includes(resource)) {
+    return resource
+  }
+  return DEFAULT_DOCS_RESOURCE
+}
+
 export type ParamKind = "number" | "string" | "boolean" | "enum"
 
 export type ParamField = {

@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { methodsForResource } from "@/lib/docs/invoke"
-import { RESOURCE_NAMES } from "@/lib/docs/types"
+import { RESOURCE_NAMES, resolveDocsResource } from "@/lib/docs/types"
 import type { ResourceName } from "@/lib/docs/types"
 import { buildDocsSearch } from "@/lib/docs-search"
 import type { AppSearch } from "@/lib/search"
@@ -34,10 +34,7 @@ export function ReferencePanel({
   resource: resourceProp,
   onResourceChange,
 }: ReferencePanelProps) {
-  const resource =
-    resourceProp && RESOURCE_NAMES.includes(resourceProp)
-      ? resourceProp
-      : "clubs"
+  const resource = resolveDocsResource(resourceProp)
   const methods = methodsForResource(resource)
 
   return (

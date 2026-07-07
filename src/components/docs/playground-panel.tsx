@@ -29,7 +29,7 @@ import {
 } from "@/lib/docs/invoke"
 import { METHOD_CATALOG } from "@/lib/docs/catalog"
 import type { MethodDef, ResourceName } from "@/lib/docs/types"
-import { RESOURCE_NAMES } from "@/lib/docs/types"
+import { RESOURCE_NAMES, resolveDocsResource } from "@/lib/docs/types"
 import { getClient } from "@/lib/euroleague"
 import type { AppSearch } from "@/lib/search"
 
@@ -50,10 +50,7 @@ function toFormValues(
 }
 
 function resolveResource(resourceProp: ResourceName | undefined): ResourceName {
-  if (resourceProp && METHOD_CATALOG.some((entry) => entry.resource === resourceProp)) {
-    return resourceProp
-  }
-  return "seasons"
+  return resolveDocsResource(resourceProp)
 }
 
 function resolveMethodDef(
