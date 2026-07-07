@@ -19,13 +19,24 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-svh flex-col bg-background text-foreground">
       <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
         <div className="container mx-auto flex h-14 items-center justify-between gap-4 px-4">
-          <Link
-            to="/"
-            search={homeSearch}
-            className="font-heading text-lg font-semibold tracking-tight"
-          >
-            EuroLeague API Demo
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/"
+              search={homeSearch}
+              className="font-heading text-lg font-semibold tracking-tight"
+            >
+              EuroLeague API Demo
+            </Link>
+            <nav className="hidden sm:block">
+              <Link
+                to="/docs"
+                search={{ competition, season }}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Docs
+              </Link>
+            </nav>
+          </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <CompetitionSeasonControls />
@@ -47,7 +58,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         >
           euroleague-api
         </a>{" "}
-        SDK. Unofficial; not affiliated with EuroLeague Basketball.
+        SDK.{" "}
+        <Link to="/docs" search={{ competition, season }} className="underline underline-offset-2">
+          Interactive docs
+        </Link>
+        . Unofficial; not affiliated with EuroLeague Basketball.
       </footer>
     </div>
   )

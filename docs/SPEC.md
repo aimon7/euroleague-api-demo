@@ -36,7 +36,7 @@ Deployment: GitHub Actions builds and publishes `dist/client` to GitHub Pages. I
 
 ## Routes
 
-There are three routes. `competition` (`euroleague` | `eurocup`) and `season` (start-year number, e.g. `2025`) are always carried in the URL search params (defaults: `euroleague`, latest season `2025`).
+There are four routes. `competition` (`euroleague` | `eurocup`) and `season` (start-year number, e.g. `2025`) are always carried in the URL search params (defaults: `euroleague`, latest season `2025`).
 
 - **`/` (landing)** — a competition selector and a season selector, plus a tabbed view:
   - **Tab 1 — Clubs**: a grid of club cards.
@@ -46,6 +46,7 @@ There are three routes. `competition` (`euroleague` | `eurocup`) and `season` (s
   - **Roster**: players + staff, split by `typeName`.
   - **Stats**: team stats including advanced — both API-provided and computed. Season selector lives in the URL.
 - **`/player/$personCode`** — a player profile (bio, photo), season & career stat cards, a per-game/season trend chart, and computed advanced-stat cards. Season selector lives in the URL.
+- **`/docs`** — SDK documentation with **Guide**, **Reference**, and **Playground** tabs. Search params: `tab` (`guide` | `reference` | `playground`), optional `resource` + `method` for deep links into the playground.
 
 ## Project Structure
 

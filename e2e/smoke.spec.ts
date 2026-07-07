@@ -16,6 +16,12 @@ const ROUTES: Array<{ path: string; name: string; ready: (page: Page) => Promise
     ready: (page) => page.getByRole("heading", { name: /Olympiacos/i }).waitFor({ timeout: 15_000 }),
   },
   {
+    path: "/docs",
+    name: "docs",
+    ready: (page) =>
+      page.getByRole("heading", { name: /SDK docs/i }).waitFor({ timeout: 15_000 }),
+  },
+  {
     path: "/player/014316",
     name: "player",
     ready: (page) => page.getByRole("heading", { name: /Cory/i }).waitFor({ timeout: 15_000 }),
