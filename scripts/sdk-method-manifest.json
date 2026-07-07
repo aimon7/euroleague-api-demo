@@ -1,0 +1,437 @@
+{
+  "generatedAt": "2026-07-07T10:07:15.441Z",
+  "sdkPath": "/Users/ianton/WebstormProjects/euroleague-api",
+  "totalMethods": 86,
+  "methods": [
+    {
+      "resource": "boxscore",
+      "method": "getGame",
+      "key": "boxscore.getGame"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getGameRoster",
+      "key": "boxscore.getGameRoster"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getGameStats",
+      "key": "boxscore.getGameStats"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getPlayerStats",
+      "key": "boxscore.getPlayerStats"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getPlayerStatsRound",
+      "key": "boxscore.getPlayerStatsRound"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getPlayerStatsSeason",
+      "key": "boxscore.getPlayerStatsSeason"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getPlayerStatsSeasons",
+      "key": "boxscore.getPlayerStatsSeasons"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getQuarterScores",
+      "key": "boxscore.getQuarterScores"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getQuarterScoresRound",
+      "key": "boxscore.getQuarterScoresRound"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getQuarterScoresSeason",
+      "key": "boxscore.getQuarterScoresSeason"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getQuarterScoresSeasons",
+      "key": "boxscore.getQuarterScoresSeasons"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getRound",
+      "key": "boxscore.getRound"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getRoundStats",
+      "key": "boxscore.getRoundStats"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getSeason",
+      "key": "boxscore.getSeason"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getSeasons",
+      "key": "boxscore.getSeasons"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getSeasonsStats",
+      "key": "boxscore.getSeasonsStats"
+    },
+    {
+      "resource": "boxscore",
+      "method": "getSeasonStats",
+      "key": "boxscore.getSeasonStats"
+    },
+    {
+      "resource": "clubs",
+      "method": "get",
+      "key": "clubs.get"
+    },
+    {
+      "resource": "clubs",
+      "method": "getLogo",
+      "key": "clubs.getLogo"
+    },
+    {
+      "resource": "clubs",
+      "method": "getRoster",
+      "key": "clubs.getRoster"
+    },
+    {
+      "resource": "clubs",
+      "method": "list",
+      "key": "clubs.list"
+    },
+    {
+      "resource": "competitions",
+      "method": "get",
+      "key": "competitions.get"
+    },
+    {
+      "resource": "competitions",
+      "method": "list",
+      "key": "competitions.list"
+    },
+    {
+      "resource": "gameMetadata",
+      "method": "getGame",
+      "key": "gameMetadata.getGame"
+    },
+    {
+      "resource": "gameMetadata",
+      "method": "getRound",
+      "key": "gameMetadata.getRound"
+    },
+    {
+      "resource": "gameMetadata",
+      "method": "getSeason",
+      "key": "gameMetadata.getSeason"
+    },
+    {
+      "resource": "gameMetadata",
+      "method": "getSeasons",
+      "key": "gameMetadata.getSeasons"
+    },
+    {
+      "resource": "games",
+      "method": "getComparison",
+      "key": "games.getComparison"
+    },
+    {
+      "resource": "games",
+      "method": "getGame",
+      "key": "games.getGame"
+    },
+    {
+      "resource": "games",
+      "method": "getGameRound",
+      "key": "games.getGameRound"
+    },
+    {
+      "resource": "games",
+      "method": "getGameSeason",
+      "key": "games.getGameSeason"
+    },
+    {
+      "resource": "games",
+      "method": "getGameSeasons",
+      "key": "games.getGameSeasons"
+    },
+    {
+      "resource": "games",
+      "method": "getPointsBreakdown",
+      "key": "games.getPointsBreakdown"
+    },
+    {
+      "resource": "games",
+      "method": "getReport",
+      "key": "games.getReport"
+    },
+    {
+      "resource": "games",
+      "method": "getReportRound",
+      "key": "games.getReportRound"
+    },
+    {
+      "resource": "games",
+      "method": "getReportSeason",
+      "key": "games.getReportSeason"
+    },
+    {
+      "resource": "games",
+      "method": "getReportSeasons",
+      "key": "games.getReportSeasons"
+    },
+    {
+      "resource": "games",
+      "method": "getScoreEvolution",
+      "key": "games.getScoreEvolution"
+    },
+    {
+      "resource": "games",
+      "method": "getStats",
+      "key": "games.getStats"
+    },
+    {
+      "resource": "games",
+      "method": "getStatsRound",
+      "key": "games.getStatsRound"
+    },
+    {
+      "resource": "games",
+      "method": "getStatsSeason",
+      "key": "games.getStatsSeason"
+    },
+    {
+      "resource": "games",
+      "method": "getStatsSeasons",
+      "key": "games.getStatsSeasons"
+    },
+    {
+      "resource": "games",
+      "method": "getTeamsComparison",
+      "key": "games.getTeamsComparison"
+    },
+    {
+      "resource": "games",
+      "method": "getTeamsComparisonRound",
+      "key": "games.getTeamsComparisonRound"
+    },
+    {
+      "resource": "games",
+      "method": "getTeamsComparisonSeason",
+      "key": "games.getTeamsComparisonSeason"
+    },
+    {
+      "resource": "games",
+      "method": "getTeamsComparisonSeasons",
+      "key": "games.getTeamsComparisonSeasons"
+    },
+    {
+      "resource": "people",
+      "method": "getCareer",
+      "key": "people.getCareer"
+    },
+    {
+      "resource": "people",
+      "method": "getCareerStats",
+      "key": "people.getCareerStats"
+    },
+    {
+      "resource": "people",
+      "method": "getProfile",
+      "key": "people.getProfile"
+    },
+    {
+      "resource": "people",
+      "method": "getRecords",
+      "key": "people.getRecords"
+    },
+    {
+      "resource": "people",
+      "method": "getSeasonRegistration",
+      "key": "people.getSeasonRegistration"
+    },
+    {
+      "resource": "people",
+      "method": "getSeasonStats",
+      "key": "people.getSeasonStats"
+    },
+    {
+      "resource": "phases",
+      "method": "get",
+      "key": "phases.get"
+    },
+    {
+      "resource": "phases",
+      "method": "list",
+      "key": "phases.list"
+    },
+    {
+      "resource": "playByPlay",
+      "method": "getGame",
+      "key": "playByPlay.getGame"
+    },
+    {
+      "resource": "playByPlay",
+      "method": "getLineups",
+      "key": "playByPlay.getLineups"
+    },
+    {
+      "resource": "playByPlay",
+      "method": "getLineupsRound",
+      "key": "playByPlay.getLineupsRound"
+    },
+    {
+      "resource": "playByPlay",
+      "method": "getLineupsSeason",
+      "key": "playByPlay.getLineupsSeason"
+    },
+    {
+      "resource": "playByPlay",
+      "method": "getLineupsSeasons",
+      "key": "playByPlay.getLineupsSeasons"
+    },
+    {
+      "resource": "playByPlay",
+      "method": "getRound",
+      "key": "playByPlay.getRound"
+    },
+    {
+      "resource": "playByPlay",
+      "method": "getSeason",
+      "key": "playByPlay.getSeason"
+    },
+    {
+      "resource": "playByPlay",
+      "method": "getSeasons",
+      "key": "playByPlay.getSeasons"
+    },
+    {
+      "resource": "players",
+      "method": "getLeaders",
+      "key": "players.getLeaders"
+    },
+    {
+      "resource": "players",
+      "method": "getLeadersAllSeasons",
+      "key": "players.getLeadersAllSeasons"
+    },
+    {
+      "resource": "players",
+      "method": "getLeadersRange",
+      "key": "players.getLeadersRange"
+    },
+    {
+      "resource": "players",
+      "method": "getStats",
+      "key": "players.getStats"
+    },
+    {
+      "resource": "players",
+      "method": "getStatsAllSeasons",
+      "key": "players.getStatsAllSeasons"
+    },
+    {
+      "resource": "players",
+      "method": "getStatsRange",
+      "key": "players.getStatsRange"
+    },
+    {
+      "resource": "rounds",
+      "method": "get",
+      "key": "rounds.get"
+    },
+    {
+      "resource": "rounds",
+      "method": "list",
+      "key": "rounds.list"
+    },
+    {
+      "resource": "schedule",
+      "method": "getRound",
+      "key": "schedule.getRound"
+    },
+    {
+      "resource": "schedule",
+      "method": "getSeason",
+      "key": "schedule.getSeason"
+    },
+    {
+      "resource": "schedule",
+      "method": "getSeasons",
+      "key": "schedule.getSeasons"
+    },
+    {
+      "resource": "seasons",
+      "method": "get",
+      "key": "seasons.get"
+    },
+    {
+      "resource": "seasons",
+      "method": "list",
+      "key": "seasons.list"
+    },
+    {
+      "resource": "shots",
+      "method": "getGame",
+      "key": "shots.getGame"
+    },
+    {
+      "resource": "shots",
+      "method": "getRound",
+      "key": "shots.getRound"
+    },
+    {
+      "resource": "shots",
+      "method": "getSeason",
+      "key": "shots.getSeason"
+    },
+    {
+      "resource": "shots",
+      "method": "getSeasons",
+      "key": "shots.getSeasons"
+    },
+    {
+      "resource": "standings",
+      "method": "getRound",
+      "key": "standings.getRound"
+    },
+    {
+      "resource": "teams",
+      "method": "getLeaders",
+      "key": "teams.getLeaders"
+    },
+    {
+      "resource": "teams",
+      "method": "getLeadersAllSeasons",
+      "key": "teams.getLeadersAllSeasons"
+    },
+    {
+      "resource": "teams",
+      "method": "getLeadersRange",
+      "key": "teams.getLeadersRange"
+    },
+    {
+      "resource": "teams",
+      "method": "getStats",
+      "key": "teams.getStats"
+    },
+    {
+      "resource": "teams",
+      "method": "getStatsAllSeasons",
+      "key": "teams.getStatsAllSeasons"
+    },
+    {
+      "resource": "teams",
+      "method": "getStatsRange",
+      "key": "teams.getStatsRange"
+    }
+  ]
+}

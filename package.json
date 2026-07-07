@@ -11,6 +11,8 @@
     "serve:dist": "vite preview --outDir dist/client",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "gen:sdk-manifest": "node scripts/gen-sdk-manifest.mjs",
+    "check:catalog": "vitest run src/lib/docs/catalog-drift.test.ts",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
     "check": "prettier --check \"**/*.{ts,tsx,js,jsx}\"",
