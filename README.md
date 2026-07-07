@@ -11,6 +11,7 @@ It is a 100% client-side single-page app (no backend): the SDK calls the EuroLea
 - **Landing** — pick a competition (EuroLeague / EuroCup) and season (kept in the URL), browse the **clubs** grid, and sort the **standings** table. Click any club to open its page.
 - **`/team/$clubCode`** — club info, full **roster** (players + staff), and team **stats** including advanced metrics (the API's own advanced values plus ones computed here).
 - **`/player/$personCode`** — player profile, season stat cards, a per-game **trend chart**, and computed advanced stats with their formulas.
+- **`/docs`** — install guide, method reference, and a live **playground** for every SDK resource.
 
 ## Stack
 
