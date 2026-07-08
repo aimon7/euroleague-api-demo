@@ -36,5 +36,7 @@ export function playerAdvancedStats(
     c("3par", "3PA Rate", f.threePointAttemptRate(player), "ratio", "3PA / FGA", REFERENCES.bbrGlossary),
     c("ftr", "FT Rate", f.freeThrowRate(player), "ratio", "FTA / FGA", REFERENCES.bbrGlossary),
     c("gmsc", "Game Score", f.gameScorePerGame(player), "number", "Hollinger Game Score, per game", REFERENCES.rumbleSeat),
+    c("astto", "AST/TO", f.assistToTurnoverRatio(player), "ratio", "AST / TOV", REFERENCES.bbrGlossary),
+    c("stlblk40", "STL+BLK/40", f.stlBlkPer40(player), "number", "(STL + BLK) / MP × 40", REFERENCES.northwestern),
   ]
 }

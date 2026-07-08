@@ -42,6 +42,27 @@ export function freeThrowRate(b: BoxTotals): number {
   return div(b.freeThrowsAttempted, b.fieldGoalsAttempted)
 }
 
+/** Assist-to-turnover ratio (raw ratio, not a percentage). */
+export function assistToTurnoverRatio(b: BoxTotals): number {
+  return div(b.assists, b.turnovers)
+}
+
+/** PIR (valuation) normalized to a 40-minute basis. `timePlayed` is in seconds. */
+export function pirPer40(valuation: number, timePlayedSeconds: number): number {
+  const minutes = timePlayedSeconds / 60
+  return div(valuation, minutes) * 40
+}
+
+/** Steals plus blocks per 40 minutes played. */
+export function stlBlkPer40(b: BoxTotals): number {
+  return div(b.steals + b.blocks, b.minutes) * 40
+}
+
+/** Share of games started, as a percentage (0–100). */
+export function starterRate(gamesStarted: number, gamesPlayed: number): number {
+  return div(gamesStarted, gamesPlayed) * 100
+}
+
 export function turnoverPct(b: BoxTotals): number {
   return (
     div(b.turnovers, b.fieldGoalsAttempted + 0.44 * b.freeThrowsAttempted + b.turnovers) *

@@ -26,6 +26,18 @@ const GameTrend = lazy(() =>
   }))
 )
 
+const PlusMinusTrend = lazy(() =>
+  import("@/components/player/plus-minus-trend").then((module) => ({
+    default: module.PlusMinusTrend,
+  }))
+)
+
+const PirTrend = lazy(() =>
+  import("@/components/player/pir-trend").then((module) => ({
+    default: module.PirTrend,
+  }))
+)
+
 export const Route = createFileRoute("/player/$personCode")({
   validateSearch: playerSearchSchema,
   component: PlayerRoute,
@@ -121,7 +133,7 @@ function PlayerRoute() {
 
       <Section
         title="Season averages"
-        description="Per-game production and shooting splits from people.getSeasonStats."
+        description="Per-game production, shooting splits, and season context (PIR/40, starter rate, plus-minus, double-doubles) from people.getSeasonStats and players.getStats misc."
       >
         <SeasonSummary
           competition={competition}
@@ -149,6 +161,36 @@ function PlayerRoute() {
           fallback={<Skeleton className="h-[300px] w-full rounded-lg" />}
         >
           <GameTrend
+            competition={competition}
+            personCode={personCode}
+            season={season}
+          />
+        </Suspense>
+      </Section>
+
+      <Section
+        title="Plus-minus trend"
+        description="Per-game plus-minus from people.getSeasonStats with a 3-game rolling average."
+      >
+        <Suspense
+          fallback={<Skeleton className="h-[300px] w-full rounded-lg" />}
+        >
+          <PlusMinusTrend
+            competition={competition}
+            personCode={personCode}
+            season={season}
+          />
+        </Suspense>
+      </Section>
+
+      <Section
+        title="PIR trend"
+        description="Per-game PIR (valuation) from people.getSeasonStats with a 3-game rolling average."
+      >
+        <Suspense
+          fallback={<Skeleton className="h-[300px] w-full rounded-lg" />}
+        >
+          <PirTrend
             competition={competition}
             personCode={personCode}
             season={season}

@@ -41,6 +41,23 @@ export function teamAdvancedStats(team: BoxTotals, opp: BoxTotals, api?: ApiRow)
       : { key, label, value: apiValue, format, source: "api", formula, reference }
   }
 
+  const apiOnly = (
+    key: string,
+    apiKey: string,
+    label: string,
+    format: StatFormat,
+    formula: string,
+    reference: string,
+  ): AdvancedStat => ({
+    key,
+    label,
+    value: fromApi(apiKey),
+    format,
+    source: "api",
+    formula,
+    reference,
+  })
+
   return [
     computed("pace", "Pace", f.pace(team, opp), "rating", "40 × Poss / (TmMP/5)", REFERENCES.bbrRatings),
     computed("ortg", "Offensive Rating", f.offensiveRating(team, opp), "rating", "100 × PTS / Poss", REFERENCES.bbrRatings),
@@ -51,5 +68,15 @@ export function teamAdvancedStats(team: BoxTotals, opp: BoxTotals, api?: ApiRow)
     computed("tov", "Turnover %", f.teamTurnoverPct(team, opp), "percent", "100 × TOV / Poss", REFERENCES.bbrRatings),
     apiOrComputed("oreb", "offensiveReboundsPercentage", "Offensive Reb %", () => f.teamOffensiveReboundPct(team, opp), "percent", "OREB / (OREB + OppDREB)", REFERENCES.bbrRatings),
     apiOrComputed("ftr", "freeThrowsRate", "FT Rate", () => f.teamFreeThrowRate(team), "ratio", "FTM / FGA", REFERENCES.bbrRatings),
+    apiOrComputed("astto", "assistsToTurnoversRatio", "AST/TO", () => f.assistToTurnoverRatio(team), "ratio", "AST / TOV", REFERENCES.bbrGlossary),
+    apiOnly("dreb", "defensiveReboundsPercentage", "Defensive Reb %", "percent", "DREB%", REFERENCES.bbrRatings),
+    apiOnly("treb", "reboundsPercentage", "Total Reb %", "percent", "TRB%", REFERENCES.bbrRatings),
+    apiOnly("ar", "assistsRatio", "Assists ratio", "percent", "Assists ratio", REFERENCES.bbrGlossary),
+    apiOnly("tor", "turnoversRatio", "Turnovers ratio", "percent", "Turnovers ratio", REFERENCES.bbrGlossary),
+    apiOnly("2pr", "twoPointRate", "2P rate", "ratio", "2PA / FGA", REFERENCES.bbrGlossary),
+    apiOnly("3pr", "threePointRate", "3P rate", "ratio", "3PA / FGA", REFERENCES.bbrGlossary),
+    apiOnly("pts2", "pointsFromTwoPointersPercentage", "Pts from 2P %", "percent", "Share of points from 2P", REFERENCES.bbrGlossary),
+    apiOnly("pts3", "pointsFromThreePointersPercentage", "Pts from 3P %", "percent", "Share of points from 3P", REFERENCES.bbrGlossary),
+    apiOnly("ptsft", "pointsFromFreeThrowsPercentage", "Pts from FT %", "percent", "Share of points from FT", REFERENCES.bbrGlossary),
   ]
 }

@@ -79,6 +79,10 @@ describe("player rate metrics", () => {
     expect(f.stealPct(player, team, opp)).toBeCloseTo(1.0769, 3)
     expect(f.blockPct(player, team, opp)).toBeCloseTo(0.7246, 3)
     expect(f.gameScorePerGame(player)).toBeCloseTo(15.15, 2)
+    expect(f.assistToTurnoverRatio(player)).toBeCloseTo(1.667, 2)
+    expect(f.stlBlkPer40(player)).toBeCloseTo(2.667, 2)
+    expect(f.pirPer40(200, 18_000)).toBeCloseTo(26.667, 2)
+    expect(f.starterRate(8, 10)).toBeCloseTo(80, 2)
   })
 
   it("never divides by zero", () => {
@@ -97,28 +101,55 @@ describe("team ratings", () => {
     expect(f.teamTurnoverPct(team, opp)).toBeCloseTo(16.159, 2)
     expect(f.teamOffensiveReboundPct(team, opp)).toBeCloseTo(29.268, 2)
     expect(f.teamFreeThrowRate(team)).toBeCloseTo(0.2, 3)
+    expect(f.assistToTurnoverRatio(team)).toBeCloseTo(1.5, 2)
   })
 })
 
 describe("assembled advanced stats", () => {
   it("marks every player metric as computed", () => {
     const stats = playerAdvancedStats(player, team, opp)
-    expect(stats.length).toBeGreaterThan(0)
+    expect(stats).toHaveLength(15)
     expect(stats.every((s) => s.source === "computed")).toBe(true)
     expect(stats.find((s) => s.key === "ts")?.value).toBeCloseTo(59.666, 2)
+    expect(stats.find((s) => s.key === "astto")?.value).toBeCloseTo(1.667, 2)
+    expect(stats.find((s) => s.key === "stlblk40")?.value).toBeCloseTo(2.667, 2)
   })
 
   it("prefers an API value when present and marks it as api", () => {
     const withApi = teamAdvancedStats(team, opp, {
       effectiveFieldGoalPercentage: "60.0%",
+      assistsToTurnoversRatio: "1.42",
+      defensiveReboundsPercentage: "72.5%",
+      reboundsPercentage: "51.0%",
+      assistsRatio: "18.5%",
+      turnoversRatio: "12.3%",
+      twoPointRate: "0.55",
+      threePointRate: "0.45",
+      pointsFromTwoPointersPercentage: "48.0%",
+      pointsFromThreePointersPercentage: "32.0%",
+      pointsFromFreeThrowsPercentage: "20.0%",
     })
     const efg = withApi.find((s) => s.key === "efg")
     expect(efg?.source).toBe("api")
     expect(efg?.value).toBeCloseTo(60, 3)
 
+    const astto = withApi.find((s) => s.key === "astto")
+    expect(astto?.source).toBe("api")
+    expect(astto?.value).toBeCloseTo(1.42, 2)
+
+    const dreb = withApi.find((s) => s.key === "dreb")
+    expect(dreb?.source).toBe("api")
+    expect(dreb?.value).toBeCloseTo(72.5, 1)
+
+    expect(withApi).toHaveLength(19)
+
     const withoutApi = teamAdvancedStats(team, opp)
     const efgComputed = withoutApi.find((s) => s.key === "efg")
     expect(efgComputed?.source).toBe("computed")
     expect(efgComputed?.value).toBeCloseTo(53.333, 2)
+
+    const asttoComputed = withoutApi.find((s) => s.key === "astto")
+    expect(asttoComputed?.source).toBe("computed")
+    expect(asttoComputed?.value).toBeCloseTo(1.5, 2)
   })
 })

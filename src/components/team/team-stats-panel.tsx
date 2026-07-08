@@ -90,7 +90,7 @@ export function TeamStatsPanel({
       <div className="space-y-4">
         <Skeleton className="aspect-2/1 w-full rounded-lg" />
         <div className={STAT_GRID}>
-          {Array.from({ length: 8 }).map((_, i) => (
+          {Array.from({ length: 19 }).map((_, i) => (
             <Skeleton key={i} className="h-24 w-full rounded-lg" />
           ))}
         </div>

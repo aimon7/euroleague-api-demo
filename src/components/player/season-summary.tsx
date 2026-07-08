@@ -1,7 +1,8 @@
 import type { Competition, PersonStats } from "euroleague-api"
 
-import { usePersonSeasonStats } from "@/lib/hooks"
-import { num } from "@/lib/mappers"
+import { pirPer40, starterRate } from "@/lib/advanced/formulas"
+import { usePersonSeasonStats, usePlayerStats } from "@/lib/hooks"
+import { findPlayerStatRow, num } from "@/lib/mappers"
 import { Skeleton } from "@/components/ui/skeleton"
 import { QueryError } from "@/components/app/query-error"
 import { StatCard } from "./stat-card"
@@ -14,6 +15,7 @@ interface Props {
 }
 
 type StatLine = PersonStats["averagePerGame"]
+type AccumulatedLine = PersonStats["accumulated"]
 
 interface Metric {
   key: string
@@ -23,6 +25,7 @@ interface Metric {
 }
 
 const GRID = "grid grid-cols-2 gap-3 sm:grid-cols-4"
+const CONTEXT_GRID = "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5"
 
 function perGameMetrics(line: StatLine): Metric[] {
   return [
@@ -68,19 +71,75 @@ function shootingMetrics(line: StatLine): Metric[] {
   ]
 }
 
+function signedInteger(value: unknown): string {
+  const n = num(value)
+  if (n > 0) return `+${n}`
+  return String(n)
+}
+
+function contextMetrics(
+  accumulated: AccumulatedLine,
+  averagePerGame: StatLine,
+  misc: { doubleDoubles: unknown; tripleDoubles: unknown } | null,
+): Metric[] {
+  const timePlayed = num(accumulated.timePlayed)
+  const gamesPlayed = num(accumulated.gamesPlayed)
+  const gamesStarted = num(accumulated.gamesStarted)
+  const valuation = num(accumulated.valuation)
+
+  return [
+    {
+      key: "pir40",
+      label: "PIR/40",
+      value: oneDecimal(pirPer40(valuation, timePlayed)),
+      hint: "Calculated",
+    },
+    {
+      key: "starter",
+      label: "Starter rate",
+      value: `${starterRate(gamesStarted, gamesPlayed).toFixed(1)}%`,
+      hint: `${gamesStarted}/${gamesPlayed} starts`,
+    },
+    {
+      key: "pm",
+      label: "+/-",
+      value: signedInteger(averagePerGame.plusMinus),
+      hint: `Season ${signedInteger(accumulated.plusMinus)} · From API`,
+    },
+    {
+      key: "dd",
+      label: "Double-doubles",
+      value: misc ? String(num(misc.doubleDoubles)) : "—",
+      hint: misc ? "From API" : undefined,
+    },
+    {
+      key: "td",
+      label: "Triple-doubles",
+      value: misc ? String(num(misc.tripleDoubles)) : "—",
+      hint: misc ? "From API" : undefined,
+    },
+  ]
+}
+
 export function SeasonSummary({ competition, personCode, season }: Props) {
-  const { data, isPending, isError, error, refetch } = usePersonSeasonStats(
-    competition,
-    personCode,
-    season,
-  )
+  const seasonStats = usePersonSeasonStats(competition, personCode, season)
+  const miscStats = usePlayerStats(competition, season, "misc")
+
+  const { data, isPending, isError, error, refetch } = seasonStats
 
   if (isPending) {
     return (
-      <div className={GRID}>
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-[72px] w-full rounded-lg" />
-        ))}
+      <div className="space-y-4">
+        <div className={GRID}>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="h-[72px] w-full rounded-lg" />
+          ))}
+        </div>
+        <div className={CONTEXT_GRID}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-[72px] w-full rounded-lg" />
+          ))}
+        </div>
       </div>
     )
   }
@@ -100,6 +159,17 @@ export function SeasonSummary({ competition, personCode, season }: Props) {
 
   const perGame = perGameMetrics(data.averagePerGame)
   const shooting = shootingMetrics(data.accumulated)
+  const miscRow = findPlayerStatRow(miscStats.data, personCode)
+  const context = contextMetrics(
+    data.accumulated,
+    data.averagePerGame,
+    miscRow
+      ? {
+          doubleDoubles: miscRow.doubleDoubles,
+          tripleDoubles: miscRow.tripleDoubles,
+        }
+      : null,
+  )
 
   return (
     <div className="space-y-4">
@@ -126,6 +196,27 @@ export function SeasonSummary({ competition, personCode, season }: Props) {
             />
           ))}
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-xs font-medium text-muted-foreground">Season context</p>
+        {miscStats.isError ? (
+          <QueryError
+            error={miscStats.error}
+            onRetry={() => void miscStats.refetch()}
+          />
+        ) : (
+          <div className={CONTEXT_GRID}>
+            {context.map((metric) => (
+              <StatCard
+                key={metric.key}
+                label={metric.label}
+                value={miscStats.isPending && (metric.key === "dd" || metric.key === "td") ? "…" : metric.value}
+                hint={metric.hint}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

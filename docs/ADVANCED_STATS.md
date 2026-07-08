@@ -60,6 +60,8 @@ All player metrics are **`Calculated`** unless explicitly stated otherwise.
 | STL% | `100 * (STL * (TmMP/5)) / (MP * OppPoss)` | Calculated |
 | BLK% | `100 * (BLK * (TmMP/5)) / (MP * (OppFGA - Opp3PA))` | Calculated |
 | Game Score (Hollinger) | `PTS + 0.4*FGM - 0.7*FGA - 0.4*(FTA-FTM) + 0.7*OREB + 0.3*DREB + STL + 0.7*AST + 0.7*BLK - 0.4*PF - TOV` | Calculated |
+| AST/TO | `AST / TOV` | Calculated |
+| STL+BLK/40 | `(STL + BLK) / MP × 40` | Calculated |
 
 ### Player metric details
 
@@ -103,6 +105,34 @@ All player metrics are **`Calculated`** unless explicitly stated otherwise.
 | TOV% | `TOV / Poss` | Calculated |
 | OREB% | `OREB / (OREB + OppDREB)` | From API or Calculated |
 | FT Rate | `FTM / FGA` | From API |
+
+### Additional team advanced (From API)
+
+The EuroLeague `type: "advanced"` team payload also provides these fields, shown verbatim when available:
+
+| Metric | API field | Source |
+| --- | --- | --- |
+| AST/TO | `assistsToTurnoversRatio` | From API (fallback: `AST / TOV` Calculated) |
+| Defensive Reb % | `defensiveReboundsPercentage` | From API |
+| Total Reb % | `reboundsPercentage` | From API |
+| Assists ratio | `assistsRatio` | From API |
+| Turnovers ratio | `turnoversRatio` | From API |
+| 2P rate | `twoPointRate` | From API |
+| 3P rate | `threePointRate` | From API |
+| Pts from 2P % | `pointsFromTwoPointersPercentage` | From API |
+| Pts from 3P % | `pointsFromThreePointersPercentage` | From API |
+| Pts from FT % | `pointsFromFreeThrowsPercentage` | From API |
+
+### Player quick metrics (Calculated)
+
+| Metric | Formula | Source |
+| --- | --- | --- |
+| AST/TO | `AST / TOV` | Calculated |
+| PIR/40 | `valuation / (timePlayed / 60) × 40` | Calculated |
+| Starter rate | `gamesStarted / gamesPlayed` | Calculated |
+| STL+BLK/40 | `(STL + BLK) / MP × 40` | Calculated |
+
+Plus-minus (`plusMinus`) and misc counting stats (`doubleDoubles`, `tripleDoubles`) are shown **From API** on the season summary when available.
 
 The "Four Factors" are Dean Oliver's four core determinants of winning (shooting, turnovers, rebounding, free throws). Where the API's `type: "advanced"` team set already provides the factor (eFG%, OREB%, FT-related rate), the app shows it as `From API`; otherwise it computes it. Team `TOV%` here uses the possession-based denominator (`TOV / Poss`) rather than the player-level denominator used above. Reference: [Basketball-Reference ratings](https://www.basketball-reference.com/about/ratings.html), [From The Rumble Seat formula sheet](https://www.fromtherumbleseat.com/advanced-basketball-statistics-formula-sheet).
 
