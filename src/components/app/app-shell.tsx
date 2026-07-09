@@ -6,6 +6,8 @@ import { useAppSearch, useLandingTabFromLocation } from "@/lib/search"
 import { CompetitionSeasonControls } from "./competition-season-controls"
 import { ThemeToggle } from "./theme-toggle"
 
+const brandLogoUrl = `${import.meta.env.BASE_URL}logo-header.png`
+
 export function AppShell({ children }: { children: ReactNode }) {
   const { competition, season } = useAppSearch()
   const landingTab = useLandingTabFromLocation()
@@ -23,9 +25,17 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link
               to="/"
               search={homeSearch}
-              className="font-heading text-lg font-semibold tracking-tight"
+              className="flex items-center gap-2 font-heading text-lg font-semibold tracking-tight"
             >
-              EuroLeague API Demo
+              <img
+                src={brandLogoUrl}
+                alt=""
+                aria-hidden
+                width={32}
+                height={32}
+                className="size-8 shrink-0 rounded-sm object-cover"
+              />
+              <span>EuroLeague API Demo</span>
             </Link>
             <nav className="hidden sm:block">
               <Link
