@@ -13,7 +13,10 @@ const ROUTES: Array<{ path: string; name: string; ready: (page: Page) => Promise
   {
     path: "/team/OLY",
     name: "team",
-    ready: (page) => page.getByRole("heading", { name: /Olympiacos/i }).waitFor({ timeout: 15_000 }),
+    ready: async (page) => {
+      await page.getByRole("heading", { name: /Olympiacos/i }).waitFor({ timeout: 15_000 })
+      await page.locator('a[href*="/player/"]').first().waitFor({ timeout: 15_000 })
+    },
   },
   {
     path: "/docs",
@@ -33,6 +36,17 @@ const IGNORE = [/React DevTools/i, /Download the React/i, /\[vite\]/i, /tanstack
 
 mkdirSync("e2e/screenshots", { recursive: true })
 
+async function settlePage(page: Page) {
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => resolve())
+        })
+      }),
+  )
+}
+
 for (const route of ROUTES) {
   test(`smoke: ${route.name} (${route.path})`, async ({ page }) => {
     const errors: string[] = []
@@ -45,6 +59,7 @@ for (const route of ROUTES) {
 
     await page.goto(route.path, { waitUntil: "load" })
     await route.ready(page)
+    await settlePage(page)
     await page.screenshot({ path: `e2e/screenshots/${route.name}.png`, fullPage: true })
 
     expect(errors, `console errors on ${route.path}:\n${errors.join("\n")}`).toEqual([])

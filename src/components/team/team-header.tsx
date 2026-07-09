@@ -2,7 +2,6 @@ import type { UseQueryResult } from "@tanstack/react-query"
 import type { Club } from "euroleague-api"
 import { GlobeIcon, MapPinIcon, UserIcon } from "@phosphor-icons/react"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { QueryError } from "@/components/app/query-error"
@@ -22,12 +21,7 @@ export function TeamHeader({ club }: { club: UseQueryResult<Club, Error> }) {
 
   return (
     <header className="flex flex-col gap-4 sm:flex-row sm:items-center">
-      <Avatar className="size-16 rounded-xl sm:size-20">
-        <AvatarImage src={data.images?.crest ?? undefined} alt="" />
-        <AvatarFallback className="rounded-xl text-base font-medium">
-          {data.code}
-        </AvatarFallback>
-      </Avatar>
+      <ClubCrest src={data.images?.crest ?? undefined} code={data.code} />
 
       <div className="min-w-0 space-y-1.5">
         <div className="flex flex-wrap items-center gap-2">
@@ -102,6 +96,23 @@ function safeExternalUrl(value: string | null | undefined): string | null {
   } catch {
     return null
   }
+}
+
+function ClubCrest({ src, code }: { src?: string; code: string }) {
+  return (
+    <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted ring-1 ring-foreground/10 sm:size-20">
+      {src ? (
+        <img
+          src={src}
+          alt=""
+          className="size-full object-contain p-1"
+          decoding="async"
+        />
+      ) : (
+        <span className="text-base font-medium text-muted-foreground">{code}</span>
+      )}
+    </div>
+  )
 }
 
 function TeamHeaderSkeleton() {
